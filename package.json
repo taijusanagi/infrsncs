@@ -1,0 +1,17 @@
+{
+  "name": "generative-music-nft",
+  "version": "1.0.0",
+  "author": "taijusanagi",
+  "license": "MIT",
+  "description": "This is generative music NFT repository",
+  "private": true,
+  "workspaces": [
+    "packages/**"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.7.0"
+  }
+}
