@@ -1,15 +1,15 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const Noise = await ethers.getContractFactory("Noise");
-  const noise = await Noise.deploy();
-  await noise.deployed();
+  const Sound = await ethers.getContractFactory("Sound");
+  const sound = await Sound.deploy();
+  await sound.deployed();
 
   const [signer] = await ethers.getSigners();
-  await noise.mint(signer.address);
+  await sound.mint(signer.address);
 
-  console.log("Noise deployed to:", noise.address);
-  console.log("Noise minted to:", signer.address);
+  console.log("Sound deployed to:", sound.address);
+  console.log("Sound minted to:", signer.address);
 }
 
 main().catch((error) => {
