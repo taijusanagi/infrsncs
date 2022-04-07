@@ -7,6 +7,15 @@ async function main() {
 
   const [signer] = await ethers.getSigners();
   await sound.mint(signer.address);
+  await sound.mint(signer.address);
+  await sound.mint(signer.address);
+  await sound.mint(signer.address);
+  await sound.mint(signer.address);
+  await sound.mint(signer.address);
+  await sound.mint(signer.address);
+  await sound.mint(signer.address);
+  await sound.mint(signer.address);
+  await sound.mint(signer.address);
 
   console.log("Sound deployed to:", sound.address);
   console.log("Sound minted to:", signer.address);

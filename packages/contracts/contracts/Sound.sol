@@ -9,6 +9,15 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 import "hardhat/console.sol";
 
 contract Sound is ERC721 {
+    mapping(uint256 => bytes32) seeds;
+
+    function random(uint256 tokenId) internal view returns (uint256) {
+        uint256 randomnumber = uint256(
+            keccak256(abi.encodePacked(seeds[tokenId], tokenId))
+        ) % 990;
+        return randomnumber + 10;
+    }
+
     function reverseUint32(uint32 input) internal pure returns (uint32 v) {
         v = input;
         v = ((v & 0xFF00FF00) >> 8) | ((v & 0x00FF00FF) << 8);
@@ -30,8 +39,6 @@ contract Sound is ERC721 {
     using Base64 for bytes;
 
     Counters.Counter private _tokenIdTracker;
-
-    mapping(uint256 => bytes32) public seeds;
 
     string public imageUrlBase;
     string public animationUrlBase;
@@ -105,8 +112,7 @@ contract Sound is ERC721 {
 
     function mint(address to) external payable virtual {
         uint256 tokenId = _tokenIdTracker.current();
-        bytes32 seed = bytes32(uint256(uint160(to)) << 96);
-        seeds[tokenId] = seed;
+        seeds[tokenId] = blockhash(block.number - 1);
         _mint(to, tokenId);
         _tokenIdTracker.increment();
     }
@@ -125,7 +131,7 @@ contract Sound is ERC721 {
             reverseUint16(uint16(trough))
         );
 
-        uint256 ramdom = 100;
+        uint256 ramdom = random(tokenId);
 
         for (uint256 i = 0; i < ramdom; i++) {
             up = abi.encodePacked(up, crestBytes);
