@@ -22,8 +22,8 @@ library Audio {
     int16 public constant trough = -16383;
     uint256 public constant maxWaveWidth = 1200;
     uint256 public constant minimumWaveWidth = 30;
-    uint256 public constant maxPulseWidth = 9900;
-    uint256 public constant minimumPulseWidth = 100;
+    uint256 public constant maxPulseWidth = 9000;
+    uint256 public constant minimumPulseWidth = 1000;
     uint256 public constant bsp = 10000;
 
     function calculateWaveWidth(bytes32 seed) internal pure returns (uint256) {

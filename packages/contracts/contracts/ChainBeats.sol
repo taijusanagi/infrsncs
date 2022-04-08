@@ -65,7 +65,6 @@ contract ChainBeats is ERC721, Ownable {
         bytes32 pulseSeed = getPulseSeed();
         uint256 waveWidth = Audio.calculateWaveWidth(waveSeed);
         uint256 pulseWidth = Audio.calculatePulseWidth(pulseSeed);
-
         bytes memory audio = Audio.getAudio(waveWidth, pulseWidth);
         bytes memory audioDataURI = abi.encodePacked(
             "data:audio/wav;base64,",
