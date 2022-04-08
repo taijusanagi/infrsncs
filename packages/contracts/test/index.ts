@@ -19,6 +19,6 @@ describe("Sound", function () {
     const mintedTokenId = 0;
     await sound.mint(signer);
     const metadata = await sound.getMetadata(mintedTokenId);
-    console.log(JSON.parse(ethers.utils.toUtf8String(metadata)));
+    console.log(ethers.utils.toUtf8String(metadata));
   });
 });
