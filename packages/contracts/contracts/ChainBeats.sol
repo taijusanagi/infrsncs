@@ -1,42 +1,40 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
 import "./ByteSwapping.sol";
-import "./Sound.sol";
+import "./Audio.sol";
 import "./Image.sol";
 
-contract ChainBeats is ERC721 {
+contract ChainBeats is ERC721, Ownable {
     using Counters for Counters.Counter;
     using Strings for uint256;
     using Base64 for bytes;
 
     Counters.Counter private _tokenIdTracker;
 
-    mapping(uint256 => bytes32) public seeds;
+    mapping(uint256 => uint256) public blockNumbers;
 
     uint256 public constant supplyLimit = 1000;
     uint256 public constant mintPrice = 0.02 ether;
 
     constructor() ERC721("ChainBeats", "CB") {}
 
+    function withdraw() public onlyOwner {
+        uint256 balance = address(this).balance;
+        payable(msg.sender).transfer(balance);
+    }
+
     function mint(address to) public payable virtual {
         require(msg.value == mintPrice, "ChainBeats: msg value is invalid");
         uint256 tokenId = _tokenIdTracker.current();
         require(tokenId < supplyLimit, "ChainBeats: mint is already finished");
-        seeds[tokenId] = keccak256(
-            abi.encodePacked(
-                block.chainid,
-                blockhash(0),
-                blockhash(block.number - 1),
-                block.timestamp,
-                tokenId
-            )
-        );
+        blockNumbers[tokenId] = block.number;
         _mint(to, tokenId);
         _tokenIdTracker.increment();
     }
@@ -63,22 +61,44 @@ contract ChainBeats is ERC721 {
     }
 
     function getMetadata(uint256 tokenId) public view returns (bytes memory) {
-        bytes memory sound = Sound.getSound(seeds[tokenId]);
+        bytes32 waveSeed = getWaveSeed(tokenId);
+        bytes32 pulseSeed = getPulseSeed();
+        uint256 waveWidth = Audio.calculateWaveWidth(waveSeed);
+        uint256 pulseWidth = Audio.calculatePulseWidth(pulseSeed);
+
+        bytes memory audio = Audio.getAudio(waveWidth, pulseWidth);
         bytes memory audioDataURI = abi.encodePacked(
             "data:audio/wav;base64,",
-            Sound.encode(sound).encode()
+            Audio.encode(audio).encode()
         );
-        bytes memory svg = Image.generateSVG(sound);
+        bytes memory svg = Image.generateSVG(audio);
         return
             abi.encodePacked(
-                '{"name": "Sound #',
+                '{"name": "ChainBeats #',
                 tokenId.toString(),
-                '", "description": "A unique piece of sound represented entirely on-chain.',
+                '", "description": "A unique beat represented entirely on-chain.',
                 '", "image": "',
                 svg,
                 '", "animation_url": "',
                 audioDataURI,
-                '"}'
+                '", "attributes": [',
+                '{"trait_type": "WAVE WIDTH","value": "',
+                waveWidth.toString(),
+                '"},',
+                '{"trait_type": "PULSE WIDTH","value": "',
+                pulseWidth.toString(),
+                '"}]}'
+            );
+    }
+
+    function getPulseSeed() internal view returns (bytes32) {
+        return keccak256(abi.encodePacked(blockhash(0)));
+    }
+
+    function getWaveSeed(uint256 tokenId) internal view returns (bytes32) {
+        return
+            keccak256(
+                abi.encodePacked(blockhash(blockNumbers[tokenId]), tokenId)
             );
     }
 }

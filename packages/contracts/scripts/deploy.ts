@@ -1,24 +1,16 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const Sound = await ethers.getContractFactory("Sound");
-  const sound = await Sound.deploy();
-  await sound.deployed();
-
+  const ChainBeats = await ethers.getContractFactory("ChainBeats");
+  const chainBeats = await ChainBeats.deploy();
+  await chainBeats.deployed();
   const [signer] = await ethers.getSigners();
-  await sound.mint(signer.address);
-  await sound.mint(signer.address);
-  await sound.mint(signer.address);
-  // await sound.mint(signer.address);
-  // await sound.mint(signer.address);
-  // await sound.mint(signer.address);
-  // await sound.mint(signer.address);
-  // await sound.mint(signer.address);
-  // await sound.mint(signer.address);
-  // await sound.mint(signer.address);
-
-  console.log("Sound deployed to:", sound.address);
-  console.log("Sound minted to:", signer.address);
+  const mintPrice = await chainBeats.mintPrice();
+  await chainBeats.mint(signer.address, { value: mintPrice });
+  await chainBeats.mint(signer.address, { value: mintPrice });
+  await chainBeats.mint(signer.address, { value: mintPrice });
+  console.log("ChainBeats deployed to:", chainBeats.address);
+  console.log("ChainBeats minted to:", signer.address);
 }
 
 main().catch((error) => {
