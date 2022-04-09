@@ -56,15 +56,19 @@ library Audio {
             ByteSwapping.swapUint16(uint16(trough))
         );
 
-        for (uint256 i = 0; i < (waveWidth * pulseWidth) / bsp; i++) {
+        for (uint256 i = 0; i < (waveWidth * 2 * pulseWidth) / bsp; i++) {
             positive = abi.encodePacked(positive, crestBytes);
         }
-        for (uint256 i = 0; i < (waveWidth * (bsp - pulseWidth)) / bsp; i++) {
+        for (
+            uint256 i = 0;
+            i < (waveWidth * 2 * (bsp - pulseWidth)) / bsp;
+            i++
+        ) {
             negative = abi.encodePacked(negative, troughBytes);
         }
 
         for (uint256 i = 0; i < sampleRate / waveWidth; i++) {
-            data = abi.encodePacked(data, i % 2 == 0 ? positive : negative);
+            data = abi.encodePacked(data, i % 2 == 0 ? negative : positive);
         }
         return data;
     }
