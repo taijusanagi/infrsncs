@@ -61,17 +61,21 @@ contract ChainBeats is ERC721, Ownable {
     }
 
     function getMetadata(uint256 tokenId) public view returns (bytes memory) {
-        bytes32 waveSeed = getWaveSeed(tokenId);
-        bytes32 dutyCycleSeed = getDutyCycleSeed();
-        uint256 waveWidth = Audio.calculateWaveWidth(waveSeed);
-        uint256 pulseWidth = Audio.calculateDutyCycle(dutyCycleSeed);
-        bytes memory audio = Audio.getAudio(75, 50);
-
+        bytes32 sampleRateSeed = getSampleRateSeed();
+        bytes32 waveAndDutyCycleSeed = getWaveAndDutyCycleSeed(tokenId);
+        uint256 sampleRate = Audio.calculateSampleRate(sampleRateSeed);
+        uint256 waveWidth = Audio.calculateWaveWidth(
+            sampleRate,
+            waveAndDutyCycleSeed
+        );
+        uint256 dutyCycle = Audio.calculateDutyCycle(waveAndDutyCycleSeed);
+        bytes memory audio = Audio.getAudio(sampleRate, waveWidth, dutyCycle);
+        bytes memory encodedAudio = Audio.encode(uint32(sampleRate), audio);
         bytes memory audioDataURI = abi.encodePacked(
             "data:audio/wav;base64,",
-            Audio.encode(audio).encode()
+            encodedAudio.encode()
         );
-        bytes memory svg = Image.generateSVG(Audio.encode(audio));
+        bytes memory svg = Image.generateSVG(encodedAudio);
         return
             abi.encodePacked(
                 '{"name": "ChainBeats #',
@@ -82,20 +86,27 @@ contract ChainBeats is ERC721, Ownable {
                 '", "animation_url": "',
                 audioDataURI,
                 '", "attributes": [',
+                '{"trait_type": "SAMPLE RATE","value": "',
+                sampleRate.toString(),
+                '"},',
                 '{"trait_type": "WAVE WIDTH","value": "',
                 waveWidth.toString(),
                 '"},',
-                '{"trait_type": "PULSE WIDTH","value": "',
-                pulseWidth.toString(),
-                '"}]}'
+                '{"trait_type": "DUTY CYCLE","value": "',
+                dutyCycle.toString(),
+                '%"}]}'
             );
     }
 
-    function getDutyCycleSeed() internal view returns (bytes32) {
+    function getSampleRateSeed() internal view returns (bytes32) {
         return keccak256(abi.encodePacked(blockhash(0)));
     }
 
-    function getWaveSeed(uint256 tokenId) internal view returns (bytes32) {
+    function getWaveAndDutyCycleSeed(uint256 tokenId)
+        internal
+        view
+        returns (bytes32)
+    {
         return
             keccak256(
                 abi.encodePacked(blockhash(blockNumbers[tokenId]), tokenId)
