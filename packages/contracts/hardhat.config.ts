@@ -33,8 +33,13 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    rinkeby: {
+    Rinkeby_TESTNET: {
       url: process.env.RINKEBY_URL || "",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    Mumbai_TESTNET: {
+      url: process.env.MUMBAI_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },

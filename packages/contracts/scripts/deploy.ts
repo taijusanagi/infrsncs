@@ -1,20 +1,23 @@
-import { ethers } from "hardhat";
-import omnichain from "../omnichain.json";
+import { ethers, network } from "hardhat";
+const omnichain = require("../omnichain.json");
 
 async function main() {
-  console.log(omnichain.test.Ethereum.endpoint);
-
-  // const ChainBeats = await ethers.getContractFactory("ChainBeats");
-
-  // const chainBeats = await ChainBeats.deploy(, 100);
-  // await chainBeats.deployed();
-  // const [signer] = await ethers.getSigners();
-  // const mintPrice = await chainBeats.mintPrice();
-  // await chainBeats.mint(signer.address, { value: mintPrice });
-  // await chainBeats.mint(signer.address, { value: mintPrice });
-  // await chainBeats.mint(signer.address, { value: mintPrice });
-  // console.log("ChainBeats deployed to:", chainBeats.address);
-  // console.log("ChainBeats minted to:", signer.address);
+  const config = omnichain[network.name];
+  const ChainBeats = await ethers.getContractFactory("ChainBeats");
+  const chainBeats = await ChainBeats.deploy(
+    config.endpoint,
+    config.startTokenId,
+    config.endTokenId,
+    config.mintPrice
+  );
+  await chainBeats.deployed();
+  const [signer] = await ethers.getSigners();
+  const mintPrice = await chainBeats.mintPrice();
+  await chainBeats.mint(signer.address, { value: mintPrice });
+  await chainBeats.mint(signer.address, { value: mintPrice });
+  await chainBeats.mint(signer.address, { value: mintPrice });
+  console.log("ChainBeats deployed to:", chainBeats.address);
+  console.log("ChainBeats minted to:", signer.address);
 }
 
 main().catch((error) => {

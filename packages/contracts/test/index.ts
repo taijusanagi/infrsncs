@@ -9,8 +9,8 @@ describe("ChainBeats", function () {
   let chainBeats: ChainBeats;
   let signer: string;
 
-  const startTokenId = 0;
-  const supplyLimit = 100;
+  const startTokenId = 10000;
+  const endTokenId = 10100;
   const mintPrice = "0";
 
   this.beforeEach(async function () {
@@ -18,7 +18,7 @@ describe("ChainBeats", function () {
     chainBeats = await ChainBeats.deploy(
       NULL_ADDRESS,
       startTokenId,
-      supplyLimit,
+      endTokenId,
       mintPrice
     );
     await chainBeats.deployed();
