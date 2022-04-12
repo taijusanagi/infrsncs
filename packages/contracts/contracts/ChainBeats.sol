@@ -62,10 +62,10 @@ contract ChainBeats is ERC721, Ownable {
 
     function getMetadata(uint256 tokenId) public view returns (bytes memory) {
         bytes32 waveSeed = getWaveSeed(tokenId);
-        bytes32 pulseSeed = getPulseSeed();
+        bytes32 dutyCycleSeed = getDutyCycleSeed();
         uint256 waveWidth = Audio.calculateWaveWidth(waveSeed);
-        uint256 pulseWidth = Audio.calculatePulseWidth(pulseSeed);
-        bytes memory audio = Audio.getAudio(waveWidth, pulseWidth);
+        uint256 pulseWidth = Audio.calculateDutyCycle(dutyCycleSeed);
+        bytes memory audio = Audio.getAudio(75, 50);
 
         bytes memory audioDataURI = abi.encodePacked(
             "data:audio/wav;base64,",
@@ -91,7 +91,7 @@ contract ChainBeats is ERC721, Ownable {
             );
     }
 
-    function getPulseSeed() internal view returns (bytes32) {
+    function getDutyCycleSeed() internal view returns (bytes32) {
         return keccak256(abi.encodePacked(blockhash(0)));
     }
 
