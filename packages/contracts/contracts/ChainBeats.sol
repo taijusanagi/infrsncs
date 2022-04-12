@@ -1,29 +1,41 @@
 //SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
+
+import "solidity-examples/contracts/NonBlockingReceiver.sol";
+import "solidity-examples/contracts/interfaces/ILayerZeroEndpoint.sol";
 
 import "./ByteSwapping.sol";
 import "./Audio.sol";
 import "./Image.sol";
 
-contract ChainBeats is ERC721, Ownable {
-    using Counters for Counters.Counter;
+contract ChainBeats is ERC721, Ownable, NonblockingReceiver {
     using Strings for uint256;
     using Base64 for bytes;
 
-    Counters.Counter private _tokenIdTracker;
+    uint256 public supplied;
+    uint256 public startTokenId;
+    uint256 public endTokenId;
+    uint256 public mintPrice;
 
+    // mapping(uint256 => bytes32) public genesisBlockHashes;
     mapping(uint256 => uint256) public blockNumbers;
 
-    uint256 public constant supplyLimit = 1000;
-    uint256 public constant mintPrice = 0.02 ether;
-
-    constructor() ERC721("ChainBeats", "CB") {}
+    constructor(
+        address _layerZeroEndpoint,
+        uint256 _startTokenId,
+        uint256 _endTokenId,
+        uint256 _mintPrice
+    ) ERC721("ChainBeats", "CB") {
+        endpoint = ILayerZeroEndpoint(_layerZeroEndpoint);
+        startTokenId = _startTokenId;
+        endTokenId = _endTokenId;
+        mintPrice = _mintPrice;
+    }
 
     function withdraw() public onlyOwner {
         uint256 balance = address(this).balance;
@@ -31,12 +43,12 @@ contract ChainBeats is ERC721, Ownable {
     }
 
     function mint(address to) public payable virtual {
-        require(msg.value == mintPrice, "ChainBeats: msg value is invalid");
-        uint256 tokenId = _tokenIdTracker.current();
-        require(tokenId < supplyLimit, "ChainBeats: mint is already finished");
+        require(msg.value >= mintPrice, "ChainBeats: msg value is invalid");
+        uint256 tokenId = startTokenId + supplied;
+        require(tokenId <= endTokenId, "ChainBeats: mint already finished");
         blockNumbers[tokenId] = block.number;
-        _mint(to, tokenId);
-        _tokenIdTracker.increment();
+        _safeMint(to, tokenId);
+        supplied++;
     }
 
     function tokenURI(uint256 tokenId)
@@ -109,7 +121,63 @@ contract ChainBeats is ERC721, Ownable {
     {
         return
             keccak256(
-                abi.encodePacked(blockhash(blockNumbers[tokenId]), tokenId)
+                abi.encodePacked(
+                    blockhash(0),
+                    blockhash(blockNumbers[tokenId]),
+                    tokenId
+                )
             );
+    }
+
+    function transferOmnichainNFT(uint16 _chainId, uint256 omniChainNFT_tokenId)
+        public
+        payable
+    {
+        require(
+            msg.sender == ownerOf(omniChainNFT_tokenId),
+            "Message sender must own the OmnichainNFT."
+        );
+        require(
+            trustedSourceLookup[_chainId].length != 0,
+            "This chain is not a trusted source source."
+        );
+
+        _burn(omniChainNFT_tokenId);
+
+        bytes memory payload = abi.encode(msg.sender, omniChainNFT_tokenId);
+        uint16 version = 1;
+        uint256 gas = 225000;
+        bytes memory adapterParams = abi.encodePacked(version, gas);
+        (uint256 quotedLayerZeroFee, ) = endpoint.estimateFees(
+            _chainId,
+            address(this),
+            payload,
+            false,
+            adapterParams
+        );
+        require(
+            msg.value >= quotedLayerZeroFee,
+            "Not enough gas to cover cross chain transfer."
+        );
+
+        endpoint.send{value: msg.value}(
+            _chainId,
+            trustedSourceLookup[_chainId],
+            payload,
+            payable(msg.sender),
+            address(0x0),
+            adapterParams
+        );
+    }
+
+    function _LzReceive(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 _nonce,
+        bytes memory _payload
+    ) internal override {
+        (address _dstOmnichainNFTAddress, uint256 omnichainNFT_tokenId) = abi
+            .decode(_payload, (address, uint256));
+        _safeMint(_dstOmnichainNFTAddress, omnichainNFT_tokenId);
     }
 }
