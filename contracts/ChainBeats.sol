@@ -88,7 +88,7 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         );
     }
 
-    function getMetadata(uint256 tokenId) public view returns (string memory) {
+    function getMetadata(uint256 tokenId) public view returns (bytes memory) {
         (
             uint256 sampleRate,
             uint256 hertz,
@@ -97,26 +97,24 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         ) = getData(tokenId);
         bytes memory svg = SVG.generate(beat);
         return
-            string(
-                abi.encodePacked(
-                    '{"name": "ChainBeats #',
-                    Strings.toString(tokenId),
-                    '", "description": "A unique beat represented entirely on-chain.',
-                    '", "image": "',
-                    svg,
-                    '", "animation_url": "',
-                    beat,
-                    '", "attributes": [',
-                    '{"trait_type": "SAMPLE RATE","value": ',
-                    Strings.toString(sampleRate),
-                    "},",
-                    '{"trait_type": "HERTS","value": ',
-                    Strings.toString(hertz),
-                    "},",
-                    '{"trait_type": "DUTY CYCLE","value": ',
-                    Strings.toString(dutyCycle),
-                    "}]}"
-                )
+            abi.encodePacked(
+                '{"name": "ChainBeats #',
+                Strings.toString(tokenId),
+                '", "description": "A unique beat represented entirely on-chain.',
+                '", "image": "',
+                svg,
+                '", "animation_url": "',
+                beat,
+                '", "attributes": [',
+                '{"trait_type": "SAMPLE RATE","value": ',
+                Strings.toString(sampleRate),
+                "},",
+                '{"trait_type": "HERTS","value": ',
+                Strings.toString(hertz),
+                "},",
+                '{"trait_type": "DUTY CYCLE","value": ',
+                Strings.toString(dutyCycle),
+                "}]}"
             );
     }
 
