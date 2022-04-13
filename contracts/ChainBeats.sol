@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
+import "./AsciiString.sol";
 import "./ByteSwapping.sol";
 import "./Omnichain.sol";
 import "./WAVE.sol";
@@ -126,24 +127,29 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
             string memory wave,
             string memory svg
         ) = getData(tokenId);
+
         metadata = abi.encodePacked(
-            '{"name": "ChainBeats #', // solhint-disable-line quotes
-            Strings.toString(tokenId),
-            '", "description": "A unique beat represented entirely on-chain.', // solhint-disable-line quotes
-            '", "image": "', // solhint-disable-line quotes
-            svg,
-            '", "animation_url": "', // solhint-disable-line quotes
-            wave,
-            '", "attributes": [', // solhint-disable-line quotes
-            '{"trait_type": "SAMPLE RATE","value": ', // solhint-disable-line quotes
-            Strings.toString(sampleRate),
-            "},",
-            '{"trait_type": "HERTS","value": ', // solhint-disable-line quotes
-            Strings.toString(hertz),
-            "},",
-            '{"trait_type": "DUTY CYCLE","value": ', // solhint-disable-line quotes
-            Strings.toString(dutyCycle),
-            "}]}"
+            abi.encodePacked(
+                '{"name": "ChainBeats #', // solhint-disable-line quotes
+                Strings.toString(tokenId),
+                '", "description": "A unique beat represented entirely on-chain.", "image": "', // solhint-disable-line quotes
+                svg,
+                '", "animation_url": "', // solhint-disable-line quotes
+                wave
+            ),
+            abi.encodePacked(
+                '", "attributes": [{"trait_type": "SAMPLE RATE","value": ', // solhint-disable-line quotes
+                Strings.toString(sampleRate),
+                '},{"trait_type": "HERTS","value": ', // solhint-disable-line quotes
+                Strings.toString(hertz),
+                '},{"trait_type": "DUTY CYCLE","value": ', // solhint-disable-line quotes
+                Strings.toString(dutyCycle),
+                '{"trait_type": "BIRTH CHAIN SEED","value": ', // solhint-disable-line quotes
+                AsciiString.toAsciiString(abi.encodePacked(birthChainSeed)),
+                '}, {"trait_type": "TOKEN ID SEED","value": ', // solhint-disable-line
+                AsciiString.toAsciiString(abi.encodePacked(tokenIdSeed)),
+                "}]}"
+            )
         );
     }
 
