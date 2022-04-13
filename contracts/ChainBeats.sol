@@ -17,7 +17,8 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
     uint256 public endTokenId;
     uint256 public mintPrice;
 
-    mapping(uint256 => bytes32) public seeds;
+    mapping(uint256 => bytes32) public birthChainSeeds;
+    mapping(uint256 => bytes32) public tokenIdSeeds;
 
     constructor(
         address layerZeroEndpoint,
@@ -35,11 +36,13 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         payable(msg.sender).transfer(balance);
     }
 
+    //burnの時にseed消す
+
     function mint(address to) public payable virtual {
         require(msg.value >= mintPrice, "ChainBeats: msg value invalid");
         uint256 tokenId = startTokenId + supplied;
         require(tokenId <= endTokenId, "ChainBeats: mint finished");
-        seeds[tokenId] = keccak256(
+        tokenIdSeeds[tokenId] = keccak256(
             abi.encodePacked(blockhash(block.number - 1), tokenId)
         );
         _safeMint(to, tokenId);
@@ -74,9 +77,9 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
             string memory svg
         )
     {
-        uint256 genesisSeed = _genesisSeed();
-        uint256 tokenIdSeed = _tokenIdSeed(tokenId);
-        sampleRate = WAVE.calculateSampleRate(genesisSeed);
+        uint256 birthChainSeed = uint256(_getBirthChainSeed(tokenId));
+        uint256 tokenIdSeed = uint256(_getTokenIdSeed(tokenId));
+        sampleRate = WAVE.calculateSampleRate(birthChainSeed);
         hertz = WAVE.calculateHertz(tokenIdSeed);
         dutyCycle = WAVE.calculateDutyCycle(tokenIdSeed);
         wave = string(WAVE.generate(sampleRate, hertz, dutyCycle));
@@ -89,6 +92,24 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         returns (string memory metadata)
     {
         metadata = string(_getMetadata(tokenId));
+    }
+
+    function _registerTraversedToken(
+        uint256 tokenId,
+        bytes32 birthChainSeed,
+        bytes32 tokenIdSeed
+    ) internal override {
+        birthChainSeeds[tokenId] = birthChainSeed;
+        tokenIdSeeds[tokenId] = tokenIdSeed;
+    }
+
+    function _burn(uint256 tokenId) internal override {
+        if (birthChainSeeds[tokenId] != "") {
+            delete birthChainSeeds[tokenId];
+        }
+        if (tokenIdSeeds[tokenId] != "") {
+            delete tokenIdSeeds[tokenId];
+        }
     }
 
     function _getMetadata(uint256 tokenId)
@@ -124,15 +145,25 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         );
     }
 
-    function _genesisSeed() internal view returns (uint256 seed) {
-        seed = uint256(keccak256(abi.encodePacked(blockhash(0))));
-    }
-
-    function _tokenIdSeed(uint256 tokenId)
+    function _getBirthChainSeed(uint256 tokenId)
         internal
         view
-        returns (uint256 seed)
+        override
+        returns (bytes32 birthChainSeed)
     {
-        seed = uint256(seeds[tokenId]);
+        if (startTokenId <= tokenId && tokenId <= endTokenId) {
+            birthChainSeed = blockhash(0);
+        } else {
+            birthChainSeed = birthChainSeeds[tokenId];
+        }
+    }
+
+    function _getTokenIdSeed(uint256 tokenId)
+        internal
+        view
+        override
+        returns (bytes32 tokenIdSeed)
+    {
+        tokenIdSeed = tokenIdSeeds[tokenId];
     }
 }

@@ -43,12 +43,12 @@ abstract contract Omnichain is
         endpoint.forceResumeReceive(srcChainId, srcAddress);
     }
 
-    function transferOmnichainNFT(uint16 chainId, uint256 omniChainNFTTokenId)
+    function transferOmnichainNFT(uint16 chainId, uint256 tokenId)
         public
         payable
     {
         require(
-            msg.sender == ownerOf(omniChainNFTTokenId),
+            msg.sender == ownerOf(tokenId),
             "Omnichain: Message sender must own the OmnichainNFT."
         );
         require(
@@ -56,9 +56,17 @@ abstract contract Omnichain is
             "Omnichain: This chain is not a trusted source source."
         );
 
-        _burn(omniChainNFTTokenId);
+        bytes32 birthChainSeed = _getBirthChainSeed(tokenId);
+        bytes32 tokenIdSeed = _getTokenIdSeed(tokenId);
 
-        bytes memory payload = abi.encode(msg.sender, omniChainNFTTokenId);
+        _burn(tokenId);
+
+        bytes memory payload = abi.encode(
+            msg.sender,
+            tokenId,
+            birthChainSeed,
+            tokenIdSeed
+        );
         uint16 version = 1;
         uint256 gas = 225000;
         bytes memory adapterParams = abi.encodePacked(version, gas);
@@ -92,9 +100,35 @@ abstract contract Omnichain is
         uint64 _nonce, // solhint-disable-line no-unused-vars
         bytes memory payload
     ) internal override {
-        (address _dstOmnichainNFTAddress, uint256 omnichainNFTTokenId) = abi
-            .decode(payload, (address, uint256));
-
-        _safeMint(_dstOmnichainNFTAddress, omnichainNFTTokenId);
+        (
+            address dstOmnichainNFTAddress,
+            uint256 omnichainNFTTokenId,
+            bytes32 birthChainSeed,
+            bytes32 tokenIdSeed
+        ) = abi.decode(payload, (address, uint256, bytes32, bytes32));
+        _safeMint(dstOmnichainNFTAddress, omnichainNFTTokenId);
+        _registerTraversedToken(
+            omnichainNFTTokenId,
+            birthChainSeed,
+            tokenIdSeed
+        );
     }
+
+    function _registerTraversedToken(
+        uint256 tokenId,
+        bytes32 birthChainSeed,
+        bytes32 tokenIdSeed
+    ) internal virtual;
+
+    function _getBirthChainSeed(uint256 tokenId)
+        internal
+        view
+        virtual
+        returns (bytes32 birthChainSeed);
+
+    function _getTokenIdSeed(uint256 tokenId)
+        internal
+        view
+        virtual
+        returns (bytes32 tokenIdSeed);
 }
