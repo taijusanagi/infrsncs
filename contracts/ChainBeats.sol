@@ -20,14 +20,14 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
     mapping(uint256 => bytes32) public seeds;
 
     constructor(
-        address _layerZeroEndpoint,
-        uint256 _startTokenId,
-        uint256 _endTokenId,
-        uint256 _mintPrice
-    ) ERC721("ChainBeats", "CB") Omnichain(_layerZeroEndpoint) {
-        startTokenId = _startTokenId;
-        endTokenId = _endTokenId;
-        mintPrice = _mintPrice;
+        address layerZeroEndpoint,
+        uint256 startTokenId_,
+        uint256 endTokenId_,
+        uint256 mintPrice_
+    ) ERC721("ChainBeats", "CB") Omnichain(layerZeroEndpoint) {
+        startTokenId = startTokenId_;
+        endTokenId = endTokenId_;
+        mintPrice = mintPrice_;
     }
 
     function withdraw() public onlyOwner {
@@ -51,11 +51,11 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         view
         virtual
         override
-        returns (string memory tokenURI)
+        returns (string memory tokenURI_)
     {
         require(_exists(tokenId), "ChainBeats: nonexistent token");
         bytes memory metadata = _getMetadata(tokenId);
-        tokenURI = string(
+        tokenURI_ = string(
             abi.encodePacked(
                 "data:application/json;base64,",
                 Base64.encode(metadata)
@@ -124,11 +124,15 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         );
     }
 
-    function _genesisSeed() internal view returns (uint256) {
-        return uint256(keccak256(abi.encodePacked(blockhash(0))));
+    function _genesisSeed() internal view returns (uint256 seed) {
+        seed = uint256(keccak256(abi.encodePacked(blockhash(0))));
     }
 
-    function _tokenIdSeed(uint256 tokenId) internal view returns (uint256) {
-        return uint256(seeds[tokenId]);
+    function _tokenIdSeed(uint256 tokenId)
+        internal
+        view
+        returns (uint256 seed)
+    {
+        seed = uint256(seeds[tokenId]);
     }
 }

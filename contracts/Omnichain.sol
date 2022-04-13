@@ -19,31 +19,31 @@ abstract contract Omnichain is
     }
 
     function setConfig(
-        uint16 _version,
-        uint16 _chainId,
-        uint256 _configType,
-        bytes calldata _config
+        uint16 version,
+        uint16 chainId,
+        uint256 configType,
+        bytes calldata config
     ) external override onlyOwner {
-        endpoint.setConfig(_version, _chainId, _configType, _config);
+        endpoint.setConfig(version, chainId, configType, config);
     }
 
-    function setSendVersion(uint16 _version) external override onlyOwner {
-        endpoint.setSendVersion(_version);
+    function setSendVersion(uint16 version) external override onlyOwner {
+        endpoint.setSendVersion(version);
     }
 
-    function setReceiveVersion(uint16 _version) external override onlyOwner {
-        endpoint.setReceiveVersion(_version);
+    function setReceiveVersion(uint16 version) external override onlyOwner {
+        endpoint.setReceiveVersion(version);
     }
 
-    function forceResumeReceive(uint16 _srcChainId, bytes calldata _srcAddress)
+    function forceResumeReceive(uint16 srcChainId, bytes calldata srcAddress)
         external
         override
         onlyOwner
     {
-        endpoint.forceResumeReceive(_srcChainId, _srcAddress);
+        endpoint.forceResumeReceive(srcChainId, srcAddress);
     }
 
-    function transferOmnichainNFT(uint16 _chainId, uint256 omniChainNFTTokenId)
+    function transferOmnichainNFT(uint16 chainId, uint256 omniChainNFTTokenId)
         public
         payable
     {
@@ -52,18 +52,18 @@ abstract contract Omnichain is
             "Omnichain: Message sender must own the OmnichainNFT."
         );
         require(
-            trustedSourceLookup[_chainId].length != 0,
+            trustedSourceLookup[chainId].length != 0,
             "Omnichain: This chain is not a trusted source source."
         );
 
-        _burn(omniChainNFT_tokenId);
+        _burn(omniChainNFTTokenId);
 
-        bytes memory payload = abi.encode(msg.sender, omniChainNFT_tokenId);
+        bytes memory payload = abi.encode(msg.sender, omniChainNFTTokenId);
         uint16 version = 1;
         uint256 gas = 225000;
         bytes memory adapterParams = abi.encodePacked(version, gas);
         (uint256 quotedLayerZeroFee, ) = endpoint.estimateFees(
-            _chainId,
+            chainId,
             address(this),
             payload,
             false,
@@ -76,8 +76,8 @@ abstract contract Omnichain is
 
         // solhint-disable-next-line check-send-result
         endpoint.send{value: msg.value}(
-            _chainId,
-            trustedSourceLookup[_chainId],
+            chainId,
+            trustedSourceLookup[chainId],
             payload,
             payable(msg.sender),
             address(0x0),
@@ -90,10 +90,10 @@ abstract contract Omnichain is
         uint16 _srcChainId, // solhint-disable-line no-unused-vars
         bytes memory _srcAddress, // solhint-disable-line no-unused-vars
         uint64 _nonce, // solhint-disable-line no-unused-vars
-        bytes memory _payload
+        bytes memory payload
     ) internal override {
         (address _dstOmnichainNFTAddress, uint256 omnichainNFTTokenId) = abi
-            .decode(_payload, (address, uint256));
+            .decode(payload, (address, uint256));
 
         _safeMint(_dstOmnichainNFTAddress, omnichainNFTTokenId);
     }
