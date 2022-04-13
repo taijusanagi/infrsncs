@@ -6,25 +6,20 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-import "solidity-examples/contracts/NonBlockingReceiver.sol";
-import "solidity-examples/contracts/interfaces/ILayerZeroEndpoint.sol";
-
-import "./Omnichain.sol";
 import "./ByteSwapping.sol";
-import "./Audio.sol";
-import "./Image.sol";
+import "./Omnichain.sol";
+import "./WAVE.sol";
+import "./SVG.sol";
+
+import "hardhat/console.sol";
 
 contract ChainBeats is ERC721, Ownable, Omnichain {
-    using Strings for uint256;
-    using Base64 for bytes;
-
     uint256 public supplied;
     uint256 public startTokenId;
     uint256 public endTokenId;
     uint256 public mintPrice;
 
-    // mapping(uint256 => bytes32) public genesisBlockHashes;
-    mapping(uint256 => uint256) public blockNumbers;
+    mapping(uint256 => bytes32) public seeds;
 
     constructor(
         address _layerZeroEndpoint,
@@ -46,7 +41,9 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         require(msg.value >= mintPrice, "ChainBeats: msg value is invalid");
         uint256 tokenId = startTokenId + supplied;
         require(tokenId <= endTokenId, "ChainBeats: mint already finished");
-        blockNumbers[tokenId] = block.number;
+        seeds[tokenId] = keccak256(
+            abi.encodePacked(blockhash(block.number - 1), tokenId)
+        );
         _safeMint(to, tokenId);
         supplied++;
     }
@@ -67,62 +64,51 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
             string(
                 abi.encodePacked(
                     "data:application/json;base64,",
-                    metadata.encode()
+                    Base64.encode(metadata)
                 )
             );
     }
 
     function getMetadata(uint256 tokenId) public view returns (bytes memory) {
-        bytes32 sampleRateSeed = getSampleRateSeed();
-        bytes32 waveAndDutyCycleSeed = getWaveAndDutyCycleSeed(tokenId);
-        uint256 sampleRate = Audio.calculateSampleRate(sampleRateSeed);
-        uint256 herts = Audio.calculateHerts(waveAndDutyCycleSeed);
-        uint256 dutyCycle = Audio.calculateDutyCycle(waveAndDutyCycleSeed);
-        bytes memory audio = Audio.getAudio(sampleRate, herts, dutyCycle);
-        bytes memory encodedAudio = Audio.encode(uint32(sampleRate), audio);
+        uint256 genesisSeed = genesisSeed();
+        uint256 tokenIdSeed = tokenIdSeed(tokenId);
+        uint256 sampleRate = WAVE.calculateSampleRate(genesisSeed);
+        uint256 herts = WAVE.calculateHerts(tokenIdSeed);
+        uint256 dutyCycle = WAVE.calculateDutyCycle(tokenIdSeed);
+        bytes memory audio = WAVE.generate(sampleRate, herts, dutyCycle);
+        bytes memory rawWaveData = WAVE.encode(uint32(sampleRate), audio);
         bytes memory audioDataURI = abi.encodePacked(
             "data:audio/wav;base64,",
-            encodedAudio.encode()
+            Base64.encode(rawWaveData)
         );
-        bytes memory svg = Image.generateSVG(encodedAudio);
+        bytes memory svg = SVG.generate(audioDataURI);
         return
             abi.encodePacked(
                 '{"name": "ChainBeats #',
-                tokenId.toString(),
+                Strings.toString(tokenId),
                 '", "description": "A unique beat represented entirely on-chain.',
                 '", "image": "',
                 svg,
                 '", "animation_url": "',
                 audioDataURI,
                 '", "attributes": [',
-                '{"trait_type": "SAMPLE RATE","value": "',
-                sampleRate.toString(),
-                '"},',
-                '{"trait_type": "HERTS","value": "',
-                herts.toString(),
-                '"},',
-                '{"trait_type": "DUTY CYCLE","value": "',
-                dutyCycle.toString(),
-                '%"}]}'
+                '{"trait_type": "SAMPLE RATE","value": ',
+                Strings.toString(sampleRate),
+                "},",
+                '{"trait_type": "HERTS","value": ',
+                Strings.toString(herts),
+                "},",
+                '{"trait_type": "DUTY CYCLE","value": ',
+                Strings.toString(dutyCycle),
+                "}]}"
             );
     }
 
-    function getSampleRateSeed() internal view returns (bytes32) {
-        return keccak256(abi.encodePacked(blockhash(0)));
+    function genesisSeed() internal view returns (uint256) {
+        return uint256(keccak256(abi.encodePacked(blockhash(0))));
     }
 
-    function getWaveAndDutyCycleSeed(uint256 tokenId)
-        internal
-        view
-        returns (bytes32)
-    {
-        return
-            keccak256(
-                abi.encodePacked(
-                    blockhash(0),
-                    blockhash(blockNumbers[tokenId]),
-                    tokenId
-                )
-            );
+    function tokenIdSeed(uint256 tokenId) internal view returns (uint256) {
+        return uint256(seeds[tokenId]);
     }
 }

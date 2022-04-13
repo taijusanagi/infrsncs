@@ -3,7 +3,7 @@ pragma solidity 0.8.4;
 
 import "./ByteSwapping.sol";
 
-library Audio {
+library WAVE {
     bytes4 constant chunkID = "RIFF";
     bytes4 constant format = "WAVE";
     bytes4 constant subchunk1ID = "fmt ";
@@ -24,39 +24,23 @@ library Audio {
 
     uint256 public constant maxDutyCycle = 99;
     uint256 public constant minDutyCycle = 1;
-
     uint256 public constant dutyCycleBase = 100;
 
-    function calculateSampleRate(bytes32 seed) internal pure returns (uint256) {
-        return
-            (uint256(seed) % (maxSampleRate - minSampleRate)) + minSampleRate;
-    }
-
-    function calculateHerts(bytes32 seed) internal pure returns (uint256) {
-        return (uint256(seed) % (maxHertz - minHertz)) + minHertz;
-    }
-
-    function calculateDutyCycle(bytes32 seed) internal pure returns (uint256) {
-        return (uint256(seed) % (maxDutyCycle - minDutyCycle)) + minDutyCycle;
-    }
-
-    function getAudio(
+    function generate(
         uint256 sampleRate,
         uint256 hertz,
         uint256 dutyCycle
     ) internal pure returns (bytes memory) {
         bytes memory data;
 
-        uint256 amplitudesLength = 1;
         uint256 waveWidth = sampleRate / hertz;
-
+        uint256 amplitudesLength = 1;
         while (waveWidth >= 2**amplitudesLength) {
             amplitudesLength++;
         }
 
         bytes[] memory upperAmplitudes = new bytes[](amplitudesLength);
         bytes[] memory lowerAmplitudes = new bytes[](amplitudesLength);
-
         upperAmplitudes[0] = abi.encodePacked(
             ByteSwapping.swapUint16(uint16(upperAmplitude))
         );
@@ -64,86 +48,83 @@ library Audio {
             ByteSwapping.swapUint16(uint16(lowerAmplitude))
         );
 
-        for (uint256 i = 0; i < amplitudesLength - 1; i++) {
-            upperAmplitudes[i + 1] = abi.encodePacked(
-                upperAmplitudes[i],
-                upperAmplitudes[i]
+        for (uint256 i = 1; i < amplitudesLength; i++) {
+            uint256 lastIndex = i - 1;
+            upperAmplitudes[i] = abi.encodePacked(
+                upperAmplitudes[lastIndex],
+                upperAmplitudes[lastIndex]
             );
-            lowerAmplitudes[i + 1] = abi.encodePacked(
-                lowerAmplitudes[i],
-                lowerAmplitudes[i]
+            lowerAmplitudes[i] = abi.encodePacked(
+                lowerAmplitudes[lastIndex],
+                lowerAmplitudes[lastIndex]
             );
         }
 
         uint256 upperWaveWidth = (waveWidth * dutyCycle) / dutyCycleBase;
         uint256 lowerWaveWidth = (waveWidth * (dutyCycleBase - dutyCycle)) /
             dutyCycleBase;
-
         uint256 adjustWaveWidth = sampleRate %
             (upperWaveWidth + lowerWaveWidth);
 
-        bytes memory upperWave;
-        bytes memory lowerWave;
+        bytes memory upperWave = concatAmplitudes(
+            upperAmplitudes,
+            upperWaveWidth
+        );
+        bytes memory lowerWave = concatAmplitudes(
+            lowerAmplitudes,
+            lowerWaveWidth
+        );
+        bytes memory adjustWave = concatAmplitudes(
+            upperAmplitudes,
+            adjustWaveWidth
+        );
 
-        bytes memory adjustWave;
-
-        {
-            uint256 upperAmplitudesIndex = amplitudesLength - 1;
-            while (upperWave.length < upperWaveWidth * 2) {
-                uint256 gap = upperWaveWidth * 2 - upperWave.length;
-
-                for (uint256 i = upperAmplitudesIndex; i >= 0; i--) {
-                    if (gap >= upperAmplitudes[i].length) {
-                        upperWave = abi.encodePacked(
-                            upperWave,
-                            upperAmplitudes[i]
-                        );
-
-                        upperAmplitudesIndex = i;
-                        break;
-                    }
-                }
-            }
-        }
-
-        {
-            uint256 lowerAmplitudesIndex = amplitudesLength - 1;
-            while (lowerWave.length < lowerWaveWidth * 2) {
-                uint256 gap = lowerWaveWidth * 2 - lowerWave.length;
-                for (uint256 i = lowerAmplitudesIndex; i >= 0; i--) {
-                    if (gap >= lowerAmplitudes[i].length) {
-                        lowerWave = abi.encodePacked(
-                            lowerWave,
-                            lowerAmplitudes[i]
-                        );
-                        lowerAmplitudesIndex = i;
-                        break;
-                    }
-                }
-            }
-        }
-
-        {
-            uint256 adjustAmplitudesIndex = amplitudesLength - 1;
-            while (adjustWave.length < adjustWaveWidth * 2) {
-                uint256 gap = adjustWaveWidth * 2 - adjustWave.length;
-                for (uint256 i = adjustAmplitudesIndex; i >= 0; i--) {
-                    if (gap >= upperAmplitudes[i].length) {
-                        adjustWave = abi.encodePacked(
-                            adjustWave,
-                            upperAmplitudes[i]
-                        );
-                        adjustAmplitudesIndex = i;
-                        break;
-                    }
-                }
-            }
-        }
         while (sampleRate * 2 >= data.length + waveWidth * 2) {
             data = abi.encodePacked(data, upperWave, lowerWave);
         }
         data = abi.encodePacked(data, adjustWave);
+
         return data;
+    }
+
+    function calculateSampleRate(uint256 seed) internal pure returns (uint256) {
+        return ramdom(seed, maxSampleRate, minSampleRate);
+    }
+
+    function calculateHerts(uint256 seed) internal pure returns (uint256) {
+        return ramdom(seed, maxHertz, minHertz);
+    }
+
+    function calculateDutyCycle(uint256 seed) internal pure returns (uint256) {
+        return ramdom(seed, maxDutyCycle, minDutyCycle);
+    }
+
+    function ramdom(
+        uint256 seed,
+        uint256 max,
+        uint256 min
+    ) internal pure returns (uint256) {
+        return (seed % (max - min)) + min;
+    }
+
+    function concatAmplitudes(bytes[] memory amplitudes, uint256 waveWidth)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        bytes memory wave;
+        uint256 lastAmplitudesIndex = amplitudes.length - 1;
+        while (wave.length < waveWidth * 2) {
+            uint256 gap = waveWidth * 2 - wave.length;
+            for (uint256 i = lastAmplitudesIndex; i >= 0; i--) {
+                if (gap >= amplitudes[i].length) {
+                    wave = abi.encodePacked(wave, amplitudes[i]);
+                    lastAmplitudesIndex = i;
+                    break;
+                }
+            }
+        }
+        return wave;
     }
 
     function encode(uint32 sampleRate, bytes memory data)
