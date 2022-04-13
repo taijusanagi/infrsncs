@@ -76,12 +76,9 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         bytes32 sampleRateSeed = getSampleRateSeed();
         bytes32 waveAndDutyCycleSeed = getWaveAndDutyCycleSeed(tokenId);
         uint256 sampleRate = Audio.calculateSampleRate(sampleRateSeed);
-        uint256 waveWidth = Audio.calculateWaveWidth(
-            sampleRate,
-            waveAndDutyCycleSeed
-        );
+        uint256 herts = Audio.calculateHerts(waveAndDutyCycleSeed);
         uint256 dutyCycle = Audio.calculateDutyCycle(waveAndDutyCycleSeed);
-        bytes memory audio = Audio.getAudio(sampleRate, waveWidth, dutyCycle);
+        bytes memory audio = Audio.getAudio(sampleRate, herts, dutyCycle);
         bytes memory encodedAudio = Audio.encode(uint32(sampleRate), audio);
         bytes memory audioDataURI = abi.encodePacked(
             "data:audio/wav;base64,",
@@ -101,8 +98,8 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
                 '{"trait_type": "SAMPLE RATE","value": "',
                 sampleRate.toString(),
                 '"},',
-                '{"trait_type": "WAVE WIDTH","value": "',
-                waveWidth.toString(),
+                '{"trait_type": "HERTS","value": "',
+                herts.toString(),
                 '"},',
                 '{"trait_type": "DUTY CYCLE","value": "',
                 dutyCycle.toString(),

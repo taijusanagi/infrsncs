@@ -19,7 +19,7 @@ library Audio {
     uint256 public constant maxSampleRate = 8000;
     uint256 public constant minSampleRate = 3000;
 
-    uint256 public constant maxHertz = 20;
+    uint256 public constant maxHertz = 16;
     uint256 public constant minHertz = 1;
 
     uint256 public constant maxDutyCycle = 99;
@@ -32,14 +32,8 @@ library Audio {
             (uint256(seed) % (maxSampleRate - minSampleRate)) + minSampleRate;
     }
 
-    function calculateWaveWidth(uint256 sampleRate, bytes32 seed)
-        internal
-        pure
-        returns (uint256)
-    {
-        uint256 maxWaveWidth = sampleRate / minHertz;
-        uint256 minWaveWidth = sampleRate / maxHertz;
-        return (uint256(seed) % (maxWaveWidth - minWaveWidth)) + minWaveWidth;
+    function calculateHerts(bytes32 seed) internal pure returns (uint256) {
+        return (uint256(seed) % (maxHertz - minHertz)) + minHertz;
     }
 
     function calculateDutyCycle(bytes32 seed) internal pure returns (uint256) {
@@ -48,12 +42,14 @@ library Audio {
 
     function getAudio(
         uint256 sampleRate,
-        uint256 waveWidth,
+        uint256 hertz,
         uint256 dutyCycle
     ) internal pure returns (bytes memory) {
         bytes memory data;
 
         uint256 amplitudesLength = 1;
+        uint256 waveWidth = sampleRate / hertz;
+
         while (waveWidth >= 2**amplitudesLength) {
             amplitudesLength++;
         }
