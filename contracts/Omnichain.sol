@@ -65,10 +65,10 @@ abstract contract Omnichain is
         uint64 _nonce,
         bytes memory _payload
     ) internal override {
-        (address _dstOmnichainNFTAddress, uint256 omnichainNFT_tokenId) = abi
+        (address _dstOmnichainNFTAddress, uint256 omnichainNFTTokenId) = abi
             .decode(_payload, (address, uint256));
 
-        _safeMint(_dstOmnichainNFTAddress, omnichainNFT_tokenId);
+        _safeMint(_dstOmnichainNFTAddress, omnichainNFTTokenId);
     }
 
     function setConfig(

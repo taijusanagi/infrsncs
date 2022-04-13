@@ -28,6 +28,6 @@ describe("ChainBeats", function () {
   it("Should return the proper metadata", async function () {
     await chainBeats.mint(signer, { value: mintPrice });
     const metadata = await chainBeats.getMetadata(startTokenId);
-    console.log(ethers.utils.toUtf8String(metadata));
+    console.log(metadata);
   });
 });
