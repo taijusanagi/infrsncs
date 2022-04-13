@@ -69,19 +69,25 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
             );
     }
 
+    function getBeat(uint256 tokenId) public view returns (bytes memory) {
+        uint256 genesisSeed = genesisSeed();
+        uint256 tokenIdSeed = tokenIdSeed(tokenId);
+        uint256 sampleRate = WAVE.calculateSampleRate(genesisSeed);
+        uint256 herts = WAVE.calculateHerts(tokenIdSeed);
+        uint256 dutyCycle = WAVE.calculateDutyCycle(tokenIdSeed);
+        bytes memory wave = WAVE.generate(sampleRate, herts, dutyCycle);
+        return abi.encodePacked("data:audio/wav;base64,", Base64.encode(wave));
+    }
+
     function getMetadata(uint256 tokenId) public view returns (bytes memory) {
         uint256 genesisSeed = genesisSeed();
         uint256 tokenIdSeed = tokenIdSeed(tokenId);
         uint256 sampleRate = WAVE.calculateSampleRate(genesisSeed);
         uint256 herts = WAVE.calculateHerts(tokenIdSeed);
         uint256 dutyCycle = WAVE.calculateDutyCycle(tokenIdSeed);
-        bytes memory audio = WAVE.generate(sampleRate, herts, dutyCycle);
-        bytes memory rawWaveData = WAVE.encode(uint32(sampleRate), audio);
-        bytes memory audioDataURI = abi.encodePacked(
-            "data:audio/wav;base64,",
-            Base64.encode(rawWaveData)
-        );
-        bytes memory svg = SVG.generate(audioDataURI);
+        bytes memory wave = WAVE.generate(sampleRate, herts, dutyCycle);
+        bytes memory beat = getBeat(tokenId);
+        bytes memory svg = SVG.generate(beat);
         return
             abi.encodePacked(
                 '{"name": "ChainBeats #',
@@ -90,7 +96,7 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
                 '", "image": "',
                 svg,
                 '", "animation_url": "',
-                audioDataURI,
+                beat,
                 '", "attributes": [',
                 '{"trait_type": "SAMPLE RATE","value": ',
                 Strings.toString(sampleRate),

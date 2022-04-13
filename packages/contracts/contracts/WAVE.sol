@@ -84,7 +84,7 @@ library WAVE {
         }
         data = abi.encodePacked(data, adjustWave);
 
-        return data;
+        return encode(uint32(sampleRate), data);
     }
 
     function calculateSampleRate(uint256 seed) internal pure returns (uint256) {
@@ -112,19 +112,22 @@ library WAVE {
         pure
         returns (bytes memory)
     {
-        bytes memory wave;
+        bytes memory concatedAmplitudes;
         uint256 lastAmplitudesIndex = amplitudes.length - 1;
-        while (wave.length < waveWidth * 2) {
-            uint256 gap = waveWidth * 2 - wave.length;
+        while (concatedAmplitudes.length < waveWidth * 2) {
+            uint256 gap = waveWidth * 2 - concatedAmplitudes.length;
             for (uint256 i = lastAmplitudesIndex; i >= 0; i--) {
                 if (gap >= amplitudes[i].length) {
-                    wave = abi.encodePacked(wave, amplitudes[i]);
+                    concatedAmplitudes = abi.encodePacked(
+                        concatedAmplitudes,
+                        amplitudes[i]
+                    );
                     lastAmplitudesIndex = i;
                     break;
                 }
             }
         }
-        return wave;
+        return concatedAmplitudes;
     }
 
     function encode(uint32 sampleRate, bytes memory data)
