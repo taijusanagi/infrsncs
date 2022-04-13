@@ -70,6 +70,8 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         public
         view
         returns (
+            bytes32 birthChainSeed,
+            bytes32 tokenIdSeed,
             uint256 sampleRate,
             uint256 hertz,
             uint256 dutyCycle,
@@ -77,11 +79,11 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
             string memory svg
         )
     {
-        uint256 birthChainSeed = uint256(_getBirthChainSeed(tokenId));
-        uint256 tokenIdSeed = uint256(_getTokenIdSeed(tokenId));
-        sampleRate = WAVE.calculateSampleRate(birthChainSeed);
-        hertz = WAVE.calculateHertz(tokenIdSeed);
-        dutyCycle = WAVE.calculateDutyCycle(tokenIdSeed);
+        birthChainSeed = _getBirthChainSeed(tokenId);
+        tokenIdSeed = _getTokenIdSeed(tokenId);
+        sampleRate = WAVE.calculateSampleRate(uint256(birthChainSeed));
+        hertz = WAVE.calculateHertz(uint256(tokenIdSeed));
+        dutyCycle = WAVE.calculateDutyCycle(uint256(tokenIdSeed));
         wave = string(WAVE.generate(sampleRate, hertz, dutyCycle));
         svg = string(SVG.generate(wave));
     }
@@ -94,7 +96,7 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         metadata = string(_getMetadata(tokenId));
     }
 
-    function _registerTraversedToken(
+    function _registerTraverse(
         uint256 tokenId,
         bytes32 birthChainSeed,
         bytes32 tokenIdSeed
@@ -107,9 +109,7 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         if (birthChainSeeds[tokenId] != "") {
             delete birthChainSeeds[tokenId];
         }
-        if (tokenIdSeeds[tokenId] != "") {
-            delete tokenIdSeeds[tokenId];
-        }
+        delete tokenIdSeeds[tokenId];
     }
 
     function _getMetadata(uint256 tokenId)
@@ -118,6 +118,8 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         returns (bytes memory metadata)
     {
         (
+            bytes32 birthChainSeed,
+            bytes32 tokenIdSeed,
             uint256 sampleRate,
             uint256 hertz,
             uint256 dutyCycle,
@@ -145,13 +147,21 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         );
     }
 
+    function _isOnBirthChain(uint256 tokenId)
+        internal
+        view
+        returns (bool isOnBirthChain)
+    {
+        isOnBirthChain = (startTokenId <= tokenId || tokenId <= endTokenId);
+    }
+
     function _getBirthChainSeed(uint256 tokenId)
         internal
         view
         override
         returns (bytes32 birthChainSeed)
     {
-        if (startTokenId <= tokenId && tokenId <= endTokenId) {
+        if (_isOnBirthChain(tokenId)) {
             birthChainSeed = blockhash(0);
         } else {
             birthChainSeed = birthChainSeeds[tokenId];

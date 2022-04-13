@@ -107,14 +107,10 @@ abstract contract Omnichain is
             bytes32 tokenIdSeed
         ) = abi.decode(payload, (address, uint256, bytes32, bytes32));
         _safeMint(dstOmnichainNFTAddress, omnichainNFTTokenId);
-        _registerTraversedToken(
-            omnichainNFTTokenId,
-            birthChainSeed,
-            tokenIdSeed
-        );
+        _registerTraverse(omnichainNFTTokenId, birthChainSeed, tokenIdSeed);
     }
 
-    function _registerTraversedToken(
+    function _registerTraverse(
         uint256 tokenId,
         bytes32 birthChainSeed,
         bytes32 tokenIdSeed
