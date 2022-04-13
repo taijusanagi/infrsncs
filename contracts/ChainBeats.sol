@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-import "./AsciiString.sol";
 import "./ByteSwapping.sol";
 import "./Omnichain.sol";
 import "./WAVE.sol";
@@ -145,9 +144,9 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
                 '},{"trait_type": "DUTY CYCLE","value": ', // solhint-disable-line quotes
                 Strings.toString(dutyCycle),
                 '{"trait_type": "BIRTH CHAIN SEED","value": ', // solhint-disable-line quotes
-                AsciiString.toAsciiString(abi.encodePacked(birthChainSeed)),
+                Strings.toHexString(uint256(birthChainSeed), 32),
                 '}, {"trait_type": "TOKEN ID SEED","value": ', // solhint-disable-line
-                AsciiString.toAsciiString(abi.encodePacked(tokenIdSeed)),
+                Strings.toHexString(uint256(tokenIdSeed), 32),
                 "}]}"
             )
         );

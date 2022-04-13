@@ -27,6 +27,7 @@ describe("ChainBeats", function () {
 
   it("Should return the proper metadata", async function () {
     await chainBeats.mint(signer, { value: mintPrice });
+    console.log(chainBeats.address);
     const metadata = await chainBeats.getMetadata(startTokenId);
     console.log(metadata);
   });
