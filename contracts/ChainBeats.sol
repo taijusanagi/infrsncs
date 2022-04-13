@@ -11,8 +11,6 @@ import "./Omnichain.sol";
 import "./WAVE.sol";
 import "./SVG.sol";
 
-import "hardhat/console.sol";
-
 contract ChainBeats is ERC721, Ownable, Omnichain {
     uint256 public supplied;
     uint256 public startTokenId;
@@ -69,44 +67,56 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
             );
     }
 
-    function getBeat(uint256 tokenId) public view returns (bytes memory) {
+    function getData(uint256 tokenId)
+        public
+        view
+        returns (
+            uint256 sampleRate,
+            uint256 hertz,
+            uint256 dutyCycle,
+            string memory beat
+        )
+    {
         uint256 genesisSeed = genesisSeed();
         uint256 tokenIdSeed = tokenIdSeed(tokenId);
-        uint256 sampleRate = WAVE.calculateSampleRate(genesisSeed);
-        uint256 herts = WAVE.calculateHerts(tokenIdSeed);
-        uint256 dutyCycle = WAVE.calculateDutyCycle(tokenIdSeed);
-        bytes memory wave = WAVE.generate(sampleRate, herts, dutyCycle);
-        return abi.encodePacked("data:audio/wav;base64,", Base64.encode(wave));
+        sampleRate = WAVE.calculateSampleRate(genesisSeed);
+        hertz = WAVE.calculateHertz(tokenIdSeed);
+        dutyCycle = WAVE.calculateDutyCycle(tokenIdSeed);
+        bytes memory wave = WAVE.generate(sampleRate, hertz, dutyCycle);
+        beat = string(
+            abi.encodePacked("data:audio/wav;base64,", Base64.encode(wave))
+        );
     }
 
-    function getMetadata(uint256 tokenId) public view returns (bytes memory) {
-        uint256 genesisSeed = genesisSeed();
-        uint256 tokenIdSeed = tokenIdSeed(tokenId);
-        uint256 sampleRate = WAVE.calculateSampleRate(genesisSeed);
-        uint256 herts = WAVE.calculateHerts(tokenIdSeed);
-        uint256 dutyCycle = WAVE.calculateDutyCycle(tokenIdSeed);
-        bytes memory wave = WAVE.generate(sampleRate, herts, dutyCycle);
-        bytes memory beat = getBeat(tokenId);
+    function getMetadata(uint256 tokenId) public view returns (string memory) {
+        (
+            uint256 sampleRate,
+            uint256 hertz,
+            uint256 dutyCycle,
+            string memory beat
+        ) = getData(tokenId);
         bytes memory svg = SVG.generate(beat);
         return
-            abi.encodePacked(
-                '{"name": "ChainBeats #',
-                Strings.toString(tokenId),
-                '", "description": "A unique beat represented entirely on-chain.',
-                '", "image": "',
-                svg,
-                '", "animation_url": "',
-                beat,
-                '", "attributes": [',
-                '{"trait_type": "SAMPLE RATE","value": ',
-                Strings.toString(sampleRate),
-                "},",
-                '{"trait_type": "HERTS","value": ',
-                Strings.toString(herts),
-                "},",
-                '{"trait_type": "DUTY CYCLE","value": ',
-                Strings.toString(dutyCycle),
-                "}]}"
+            string(
+                abi.encodePacked(
+                    '{"name": "ChainBeats #',
+                    Strings.toString(tokenId),
+                    '", "description": "A unique beat represented entirely on-chain.',
+                    '", "image": "',
+                    svg,
+                    '", "animation_url": "',
+                    beat,
+                    '", "attributes": [',
+                    '{"trait_type": "SAMPLE RATE","value": ',
+                    Strings.toString(sampleRate),
+                    "},",
+                    '{"trait_type": "HERTS","value": ',
+                    Strings.toString(hertz),
+                    "},",
+                    '{"trait_type": "DUTY CYCLE","value": ',
+                    Strings.toString(dutyCycle),
+                    "}]}"
+                )
             );
     }
 

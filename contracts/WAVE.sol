@@ -91,7 +91,7 @@ library WAVE {
         return ramdom(seed, maxSampleRate, minSampleRate);
     }
 
-    function calculateHerts(uint256 seed) internal pure returns (uint256) {
+    function calculateHertz(uint256 seed) internal pure returns (uint256) {
         return ramdom(seed, maxHertz, minHertz);
     }
 
@@ -112,22 +112,19 @@ library WAVE {
         pure
         returns (bytes memory)
     {
-        bytes memory concatedAmplitudes;
+        bytes memory concated;
         uint256 lastAmplitudesIndex = amplitudes.length - 1;
-        while (concatedAmplitudes.length < waveWidth * 2) {
-            uint256 gap = waveWidth * 2 - concatedAmplitudes.length;
+        while (concated.length < waveWidth * 2) {
+            uint256 gap = waveWidth * 2 - concated.length;
             for (uint256 i = lastAmplitudesIndex; i >= 0; i--) {
                 if (gap >= amplitudes[i].length) {
-                    concatedAmplitudes = abi.encodePacked(
-                        concatedAmplitudes,
-                        amplitudes[i]
-                    );
+                    concated = abi.encodePacked(concated, amplitudes[i]);
                     lastAmplitudesIndex = i;
                     break;
                 }
             }
         }
-        return concatedAmplitudes;
+        return concated;
     }
 
     function encode(uint32 sampleRate, bytes memory data)
