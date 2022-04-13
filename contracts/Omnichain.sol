@@ -18,12 +18,37 @@ abstract contract Omnichain is
         endpoint = ILayerZeroEndpoint(_layerZeroEndpoint);
     }
 
-    function transferOmnichainNFT(uint16 _chainId, uint256 omniChainNFT_tokenId)
+    function setConfig(
+        uint16 _version,
+        uint16 _chainId,
+        uint256 _configType,
+        bytes calldata _config
+    ) external override onlyOwner {
+        endpoint.setConfig(_version, _chainId, _configType, _config);
+    }
+
+    function setSendVersion(uint16 _version) external override onlyOwner {
+        endpoint.setSendVersion(_version);
+    }
+
+    function setReceiveVersion(uint16 _version) external override onlyOwner {
+        endpoint.setReceiveVersion(_version);
+    }
+
+    function forceResumeReceive(uint16 _srcChainId, bytes calldata _srcAddress)
+        external
+        override
+        onlyOwner
+    {
+        endpoint.forceResumeReceive(_srcChainId, _srcAddress);
+    }
+
+    function transferOmnichainNFT(uint16 _chainId, uint256 omniChainNFTTokenId)
         public
         payable
     {
         require(
-            msg.sender == ownerOf(omniChainNFT_tokenId),
+            msg.sender == ownerOf(omniChainNFTTokenId),
             "Omnichain: Message sender must own the OmnichainNFT."
         );
         require(
@@ -49,6 +74,7 @@ abstract contract Omnichain is
             "Omnichain: Not enough gas to cover cross chain transfer."
         );
 
+        // solhint-disable-next-line check-send-result
         endpoint.send{value: msg.value}(
             _chainId,
             trustedSourceLookup[_chainId],
@@ -59,40 +85,16 @@ abstract contract Omnichain is
         );
     }
 
+    // solhint-disable-next-line func-name-mixedcase
     function _LzReceive(
-        uint16 _srcChainId,
-        bytes memory _srcAddress,
-        uint64 _nonce,
+        uint16 _srcChainId, // solhint-disable-line no-unused-vars
+        bytes memory _srcAddress, // solhint-disable-line no-unused-vars
+        uint64 _nonce, // solhint-disable-line no-unused-vars
         bytes memory _payload
     ) internal override {
         (address _dstOmnichainNFTAddress, uint256 omnichainNFTTokenId) = abi
             .decode(_payload, (address, uint256));
 
         _safeMint(_dstOmnichainNFTAddress, omnichainNFTTokenId);
-    }
-
-    function setConfig(
-        uint16 _version,
-        uint16 _chainId,
-        uint256 _configType,
-        bytes calldata _config
-    ) external override onlyOwner {
-        endpoint.setConfig(_version, _chainId, _configType, _config);
-    }
-
-    function setSendVersion(uint16 _version) external override onlyOwner {
-        endpoint.setSendVersion(_version);
-    }
-
-    function setReceiveVersion(uint16 _version) external override onlyOwner {
-        endpoint.setReceiveVersion(_version);
-    }
-
-    function forceResumeReceive(uint16 _srcChainId, bytes calldata _srcAddress)
-        external
-        override
-        onlyOwner
-    {
-        endpoint.forceResumeReceive(_srcChainId, _srcAddress);
     }
 }
