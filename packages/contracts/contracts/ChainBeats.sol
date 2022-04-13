@@ -9,11 +9,12 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 import "solidity-examples/contracts/NonBlockingReceiver.sol";
 import "solidity-examples/contracts/interfaces/ILayerZeroEndpoint.sol";
 
+import "./Omnichain.sol";
 import "./ByteSwapping.sol";
 import "./Audio.sol";
 import "./Image.sol";
 
-contract ChainBeats is ERC721, Ownable, NonblockingReceiver {
+contract ChainBeats is ERC721, Ownable, Omnichain {
     using Strings for uint256;
     using Base64 for bytes;
 
@@ -30,8 +31,7 @@ contract ChainBeats is ERC721, Ownable, NonblockingReceiver {
         uint256 _startTokenId,
         uint256 _endTokenId,
         uint256 _mintPrice
-    ) ERC721("ChainBeats", "CB") {
-        endpoint = ILayerZeroEndpoint(_layerZeroEndpoint);
+    ) ERC721("ChainBeats", "CB") Omnichain(_layerZeroEndpoint) {
         startTokenId = _startTokenId;
         endTokenId = _endTokenId;
         mintPrice = _mintPrice;
@@ -127,57 +127,5 @@ contract ChainBeats is ERC721, Ownable, NonblockingReceiver {
                     tokenId
                 )
             );
-    }
-
-    function transferOmnichainNFT(uint16 _chainId, uint256 omniChainNFT_tokenId)
-        public
-        payable
-    {
-        require(
-            msg.sender == ownerOf(omniChainNFT_tokenId),
-            "Message sender must own the OmnichainNFT."
-        );
-        require(
-            trustedSourceLookup[_chainId].length != 0,
-            "This chain is not a trusted source source."
-        );
-
-        _burn(omniChainNFT_tokenId);
-
-        bytes memory payload = abi.encode(msg.sender, omniChainNFT_tokenId);
-        uint16 version = 1;
-        uint256 gas = 225000;
-        bytes memory adapterParams = abi.encodePacked(version, gas);
-        (uint256 quotedLayerZeroFee, ) = endpoint.estimateFees(
-            _chainId,
-            address(this),
-            payload,
-            false,
-            adapterParams
-        );
-        require(
-            msg.value >= quotedLayerZeroFee,
-            "Not enough gas to cover cross chain transfer."
-        );
-
-        endpoint.send{value: msg.value}(
-            _chainId,
-            trustedSourceLookup[_chainId],
-            payload,
-            payable(msg.sender),
-            address(0x0),
-            adapterParams
-        );
-    }
-
-    function _LzReceive(
-        uint16 _srcChainId,
-        bytes memory _srcAddress,
-        uint64 _nonce,
-        bytes memory _payload
-    ) internal override {
-        (address _dstOmnichainNFTAddress, uint256 omnichainNFT_tokenId) = abi
-            .decode(_payload, (address, uint256));
-        _safeMint(_dstOmnichainNFTAddress, omnichainNFT_tokenId);
     }
 }
