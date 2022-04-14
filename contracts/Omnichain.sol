@@ -67,12 +67,10 @@ abstract contract Omnichain is
             "Omnichain: This chain is not a trusted source"
         );
 
-        _unregisterTraversableSeeds(tokenId);
-        _burn(tokenId);
-
         (uint256 birthChainSeed, uint256 tokenIdSeed) = _getTraversableSeeds(
             tokenId
         );
+
         bytes memory payload = abi.encode(
             msg.sender,
             tokenId,
@@ -95,6 +93,9 @@ abstract contract Omnichain is
             msg.value >= messageFee,
             "Omnichain: Not enough gas to cover cross chain transfer."
         );
+
+        _unregisterTraversableSeeds(tokenId);
+        _burn(tokenId);
 
         // solhint-disable-next-line check-send-result
         endpoint.send{value: msg.value}(

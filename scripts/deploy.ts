@@ -1,5 +1,8 @@
 import { ethers, network } from "hardhat";
+import * as fs from "fs";
+import * as path from "path";
 
+export const filePath = "../omnichain.json";
 const omnichain = require("../omnichain.json");
 
 async function main() {
@@ -20,6 +23,8 @@ async function main() {
   await chainBeats.mint(signer.address, { value: mintPrice });
   await chainBeats.mint(signer.address, { value: mintPrice });
   omnichain[network.name].deployed = chainBeats.address;
+  fs.writeFileSync(path.join(__dirname, filePath), JSON.stringify(omnichain));
+  console.log("deployed:", chainBeats.address);
 }
 
 main().catch((error) => {

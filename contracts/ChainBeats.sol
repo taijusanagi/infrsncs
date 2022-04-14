@@ -30,7 +30,7 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         uint256 endTokenId_,
         uint256 mintPrice_
     )
-        ERC721("TEST", "TEST")
+        ERC721("ChainBeats", "CB")
         Omnichain(layerZeroEndpoint, gasForDestinationLzReceive_)
     {
         genesisBlockHash = genesisBlockHash_;

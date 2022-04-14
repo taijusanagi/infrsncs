@@ -1,11 +1,13 @@
 import * as dotenv from "dotenv";
 
-import { HardhatUserConfig } from "hardhat/config";
+import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
+
+import "./tasks/register";
 
 import networks from "./network.json";
 
@@ -35,6 +37,14 @@ const config: HardhatUserConfig = {
     },
     polygon_testnet: {
       url: networks.polygon_testnet.rpc,
+      accounts,
+    },
+    bsc_mainnet: {
+      url: networks.bsc_mainnet.rpc,
+      accounts,
+    },
+    bsc_testnet: {
+      url: networks.bsc_testnet.rpc,
       accounts,
     },
   },
