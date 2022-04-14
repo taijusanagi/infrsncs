@@ -57,10 +57,7 @@ abstract contract Omnichain is
         gasForDestinationLzReceive = gasForDestinationLzReceive_;
     }
 
-    function transferOmnichainNFT(uint16 chainId, uint256 tokenId)
-        public
-        payable
-    {
+    function traverseChains(uint16 chainId, uint256 tokenId) public payable {
         require(
             msg.sender == ownerOf(tokenId),
             "Omnichain: Message sender must own the OmnichainNFT"
@@ -69,6 +66,9 @@ abstract contract Omnichain is
             trustedSourceLookup[chainId].length != 0,
             "Omnichain: This chain is not a trusted source"
         );
+
+        _unregisterTraversableSeeds(tokenId);
+        _burn(tokenId);
 
         (uint256 birthChainSeed, uint256 tokenIdSeed) = _getTraversableSeeds(
             tokenId
@@ -84,7 +84,7 @@ abstract contract Omnichain is
             version,
             gasForDestinationLzReceive
         );
-        (uint256 quotedLayerZeroFee, ) = endpoint.estimateFees(
+        (uint256 messageFee, ) = endpoint.estimateFees(
             chainId,
             address(this),
             payload,
@@ -92,12 +92,9 @@ abstract contract Omnichain is
             adapterParams
         );
         require(
-            msg.value >= quotedLayerZeroFee,
+            msg.value >= messageFee,
             "Omnichain: Not enough gas to cover cross chain transfer."
         );
-
-        _unregisterTraversableSeeds(tokenId);
-        _burn(tokenId);
 
         // solhint-disable-next-line check-send-result
         endpoint.send{value: msg.value}(

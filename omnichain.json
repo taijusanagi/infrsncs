@@ -5,8 +5,8 @@
     "gasForDestinationLzReceive": "225000",
     "genesisBlockHash": "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3",
     "startTokenId": "1000",
-    "endTokenId": "1250",
-    "mintPrice": "0",
+    "endTokenId": "1100",
+    "mintPrice": "10000000000000000",
     "deployed": ""
   },
   "bsc_mainnet": {
@@ -77,7 +77,7 @@
     "startTokenId": "1000",
     "endTokenId": "1250",
     "mintPrice": "0",
-    "deployed": ""
+    "deployed": "10000000000000000"
   },
   "bsc_testnet": {
     "chainId": 10002,

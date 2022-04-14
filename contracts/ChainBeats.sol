@@ -30,13 +30,18 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         uint256 endTokenId_,
         uint256 mintPrice_
     )
-        ERC721("ChainBeats", "CB")
+        ERC721("TEST", "TEST")
         Omnichain(layerZeroEndpoint, gasForDestinationLzReceive_)
     {
         genesisBlockHash = genesisBlockHash_;
         startTokenId = startTokenId_;
         endTokenId = endTokenId_;
         mintPrice = mintPrice_;
+    }
+
+    //solhint-disable-next-line no-empty-blocks
+    function donate() public payable {
+        // thank you
     }
 
     function withdraw() public onlyOwner {
@@ -79,7 +84,7 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         bytes memory metadata = abi.encodePacked(
             '{"name":"ChainBeats #',
             Strings.toString(tokenId),
-            '","description": "A unique beat represented entirely on-chain.","image":"',
+            '","description": "A unique beat represented entirely on-chain.","image_data":"',
             SVG.generate(wave),
             '","animation_url":"',
             wave,
@@ -91,7 +96,7 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
                 Strings.toString(dutyCycle),
                 '"},{"trait_type":"WAVE WIDTH","value":"',
                 Strings.toString(waveWidth),
-                '"},{"trait_type":"APPROXIMATE HERTS","value":"',
+                '"},{"trait_type":"APPROXIMATE HERTZ","value":"',
                 Strings.toString(sampleRate / waveWidth),
                 '"},{"trait_type":"BIRTH CHAIN SEED","value":"',
                 Strings.toHexString(birthChainSeed, 32),
