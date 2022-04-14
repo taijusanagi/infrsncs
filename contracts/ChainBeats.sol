@@ -6,10 +6,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-import "solidity-examples/contracts/NonBlockingReceiver.sol";
-import "solidity-examples/contracts/interfaces/ILayerZeroEndpoint.sol";
-import "solidity-examples/contracts/interfaces/ILayerZeroUserApplicationConfig.sol";
-
 import "./ByteSwapping.sol";
 import "./SVG.sol";
 import "./Omnichain.sol";

@@ -77,7 +77,7 @@
     "startTokenId": "1000",
     "endTokenId": "1250",
     "mintPrice": "0",
-    "deployed": "0x0269bc1dc9adef23bf01d687d290ee74dab8fd03"
+    "deployed": "0xF4fF583FC167Ae59cDA2B57a82a129048Fe06c42"
   },
   "bsc_testnet": {
     "chainId": 10002,
@@ -87,7 +87,7 @@
     "startTokenId": "2000",
     "endTokenId": "2250",
     "mintPrice": "0",
-    "deployed": "0x9eD7B38a150B2D72BA9Be55477F7ef0e6Bb9E877"
+    "deployed": "0x60f6959126be3501f1D0B7da39CD5eB9e17e1164"
   },
   "avalanche_testnet": {
     "chainId": 10006,

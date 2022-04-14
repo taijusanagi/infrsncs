@@ -37,6 +37,6 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.5.0",
-    "solidity-examples": "LayerZero-Labs/solidity-examples#56422eaa758ae1fab57eab100f32943a3b4d5886"
+    "solidity-examples": "LayerZero-Labs/solidity-examples#1422b0fd913e16cb1c79e33a9ddef0eb8cf6d9ae"
   }
 }

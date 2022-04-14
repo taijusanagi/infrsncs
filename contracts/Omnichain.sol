@@ -4,50 +4,18 @@ pragma solidity 0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-import "solidity-examples/contracts/NonBlockingReceiver.sol";
-import "solidity-examples/contracts/interfaces/ILayerZeroEndpoint.sol";
-import "solidity-examples/contracts/interfaces/ILayerZeroUserApplicationConfig.sol";
+import "solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 
-abstract contract Omnichain is
-    ERC721,
-    Ownable,
-    NonblockingReceiver,
-    ILayerZeroUserApplicationConfig
-{
+abstract contract Omnichain is ERC721, Ownable, NonblockingLzApp {
     uint256 public gasForDestinationLzReceive;
 
     mapping(uint256 => uint256) private _birthChainSeeds;
     mapping(uint256 => uint256) private _tokenIdSeeds;
 
     constructor(address layerZeroEndpoint, uint256 gasForDestinationLzReceive_)
+        NonblockingLzApp(layerZeroEndpoint)
     {
-        endpoint = ILayerZeroEndpoint(layerZeroEndpoint);
         gasForDestinationLzReceive = gasForDestinationLzReceive_;
-    }
-
-    function setConfig(
-        uint16 version,
-        uint16 chainId,
-        uint256 configType,
-        bytes calldata config
-    ) external override onlyOwner {
-        endpoint.setConfig(version, chainId, configType, config);
-    }
-
-    function setSendVersion(uint16 version) external override onlyOwner {
-        endpoint.setSendVersion(version);
-    }
-
-    function setReceiveVersion(uint16 version) external override onlyOwner {
-        endpoint.setReceiveVersion(version);
-    }
-
-    function forceResumeReceive(uint16 srcChainId, bytes calldata srcAddress)
-        external
-        override
-        onlyOwner
-    {
-        endpoint.forceResumeReceive(srcChainId, srcAddress);
     }
 
     function setGasForDestinationLzReceive(uint256 gasForDestinationLzReceive_)
@@ -62,10 +30,6 @@ abstract contract Omnichain is
             msg.sender == ownerOf(tokenId),
             "Omnichain: Message sender must own the OmnichainNFT"
         );
-        require(
-            trustedSourceLookup[chainId].length != 0,
-            "Omnichain: This chain is not a trusted source"
-        );
 
         (uint256 birthChainSeed, uint256 tokenIdSeed) = _getTraversableSeeds(
             tokenId
@@ -77,18 +41,21 @@ abstract contract Omnichain is
             birthChainSeed,
             tokenIdSeed
         );
+
         uint16 version = 1;
         bytes memory adapterParams = abi.encodePacked(
             version,
             gasForDestinationLzReceive
         );
-        (uint256 messageFee, ) = endpoint.estimateFees(
+
+        (uint256 messageFee, ) = lzEndpoint.estimateFees(
             chainId,
             address(this),
             payload,
             false,
             adapterParams
         );
+
         require(
             msg.value >= messageFee,
             "Omnichain: Not enough gas to cover cross chain transfer."
@@ -97,10 +64,8 @@ abstract contract Omnichain is
         _unregisterTraversableSeeds(tokenId);
         _burn(tokenId);
 
-        // solhint-disable-next-line check-send-result
-        endpoint.send{value: msg.value}(
+        _lzSend(
             chainId,
-            trustedSourceLookup[chainId],
             payload,
             payable(msg.sender),
             address(0x0),
@@ -122,8 +87,7 @@ abstract contract Omnichain is
         delete _tokenIdSeeds[tokenId];
     }
 
-    // solhint-disable-next-line func-name-mixedcase
-    function _LzReceive(
+    function _nonblockingLzReceive(
         uint16 _srcChainId, // solhint-disable-line no-unused-vars
         bytes memory _srcAddress, // solhint-disable-line no-unused-vars
         uint64 _nonce, // solhint-disable-line no-unused-vars

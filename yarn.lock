@@ -8647,9 +8647,9 @@ solidity-coverage@^0.7.20:
     shelljs "^0.8.3"
     web3-utils "^1.3.0"
 
-solidity-examples@LayerZero-Labs/solidity-examples#56422eaa758ae1fab57eab100f32943a3b4d5886:
+solidity-examples@LayerZero-Labs/solidity-examples#1422b0fd913e16cb1c79e33a9ddef0eb8cf6d9ae:
   version "0.0.1"
-  resolved "https://codeload.github.com/LayerZero-Labs/solidity-examples/tar.gz/56422eaa758ae1fab57eab100f32943a3b4d5886"
+  resolved "https://codeload.github.com/LayerZero-Labs/solidity-examples/tar.gz/1422b0fd913e16cb1c79e33a9ddef0eb8cf6d9ae"
   dependencies:
     "@openzeppelin/contracts" "^4.4.1"
     dotenv "^10.0.0"
