@@ -4,49 +4,56 @@
     "endpoint": "0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675",
     "startTokenId": "1000",
     "endTokenId": "1250",
-    "mintPrice": "0"
+    "mintPrice": "0",
+    "genesisBlockHash": "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3"
   },
   "BinanceSmartChain_MAINNET": {
     "chainId": 2,
     "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
     "startTokenId": "2000",
     "endTokenId": "2250",
-    "mintPrice": "0"
+    "mintPrice": "0",
+    "genesisBlockHash": "0x0d21840abff46b96c84b2ac9e10e4f5cdaeb5693cb665db62a2f3b02d2d57b5b"
   },
   "Avalanche_MAINNET​": {
     "chainId": 6,
     "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
     "startTokenId": "6000",
     "endTokenId": "6250",
-    "mintPrice": "0"
+    "mintPrice": "0",
+    "genesisBlockHash": "0x31ced5b9beb7f8782b014660da0cb18cc409f121f408186886e1ca3e8eeca96b"
   },
   "Polygon_MAINNET": {
     "chainId": 9,
     "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
     "startTokenId": "9000",
     "endTokenId": "9250",
-    "mintPrice": "0"
+    "mintPrice": "0",
+    "genesisBlockHash": "0xa9c28ce2141b56c474f1dc504bee9b01eb1bd7d1a507580d5519d4437a97de1b"
   },
   "Arbitrum_MAINNET": {
     "chainId": 10,
     "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
     "startTokenId": "10000",
     "endTokenId": "10250",
-    "mintPrice": "0"
+    "mintPrice": "0",
+    "genesisBlockHash": "0x7ee576b35482195fc49205cec9af72ce14f003b9ae69f6ba0faef4514be8b442"
   },
   "Optimism_MAINNET": {
     "chainId": 11,
     "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
     "startTokenId": "11000",
     "endTokenId": "11250",
-    "mintPrice": "0"
+    "mintPrice": "0",
+    "genesisBlockHash": "0x896440b9bb3a942e8891a964fd70b4fff8338b89d7b66e3c06978b4ee98d9d3c"
   },
   "Fantom_MAINNET": {
     "chainId": 12,
     "endpoint": "0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7",
     "startTokenId": "12000",
     "endTokenId": "12250",
-    "mintPrice": "0"
+    "mintPrice": "0",
+    "genesisBlockHash": "0x00000000000003e83fddf1e9330f0a8691d9f0b2af57b38c3bb85488488a40df"
   },
   "Rinkeby_TESTNET": {
     "chainId": 10001,
@@ -61,14 +68,16 @@
     "endpoint": "0x6Fcb97553D41516Cb228ac03FdC8B9a0a9df04A1",
     "startTokenId": "2000",
     "endTokenId": "2250",
-    "mintPrice": "0"
+    "mintPrice": "0",
+    "genesisBlockHash": "0x6d3c66c5357ec91d5c43af47e234a939b22557cbb552dc45bebbceeed90fbe34"
   },
   "Fuji_TESTNET": {
     "chainId": 10006,
     "endpoint": "0x93f54D755A063cE7bB9e6Ac47Eccc8e33411d706",
     "startTokenId": "6000",
     "endTokenId": "6250",
-    "mintPrice": "0"
+    "mintPrice": "0",
+    "genesisBlockHash": "0x31ced5b9beb7f8782b014660da0cb18cc409f121f408186886e1ca3e8eeca96b"
   },
   "Mumbai_TESTNET": {
     "chainId": 10009,
@@ -83,20 +92,23 @@
     "endpoint": "0x4D747149A57923Beb89f22E6B7B97f7D8c087A00",
     "startTokenId": "10000",
     "endTokenId": "10250",
-    "mintPrice": "0"
+    "mintPrice": "0",
+    "genesisBlockHash": "0x7ee576b35482195fc49205cec9af72ce14f003b9ae69f6ba0faef4514be8b442"
   },
   "Optimism_TESTNET": {
     "chainId": 10011,
     "endpoint": "0x72aB53a133b27Fa428ca7Dc263080807AfEc91b5",
     "startTokenId": "11000",
     "endTokenId": "11250",
-    "mintPrice": "0"
+    "mintPrice": "0",
+    "genesisBlockHash": "0x88a63b15a74b6f5d1c7763c0af570d0fb8fdbb2df6a64486e95ba51e947410e4"
   },
   "Fantom_TESTNET": {
     "chainId": 10012,
     "endpoint": "0x7dcAD72640F835B0FA36EFD3D6d3ec902C7E5acf",
     "startTokenId": "12000",
     "endTokenId": "12250",
-    "mintPrice": "0"
+    "mintPrice": "0",
+    "genesisBlockHash": "0x00000000000003e8c717f00dc4306a6ff72eabc9a6ec6e4a46bf6ba044ca88d2"
   }
 }
