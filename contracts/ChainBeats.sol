@@ -16,8 +16,7 @@ import "./Omnichain.sol";
 import "./WAVE.sol";
 
 contract ChainBeats is ERC721, Ownable, Omnichain {
-    bytes32 public genesisBlockHash;
-
+    uint256 public genesisBlockHash;
     uint256 public supplied;
     uint256 public startTokenId;
     uint256 public endTokenId;
@@ -26,17 +25,13 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
     constructor(
         address layerZeroEndpoint,
         uint256 gasForDestinationLzReceive_,
-        bytes32 genesisBlockHash_,
+        uint256 genesisBlockHash_,
         uint256 startTokenId_,
         uint256 endTokenId_,
         uint256 mintPrice_
     )
         ERC721("ChainBeats", "CB")
-        Omnichain(
-            layerZeroEndpoint,
-            gasForDestinationLzReceive_,
-            birthChainGenesisBlockHash_
-        )
+        Omnichain(layerZeroEndpoint, gasForDestinationLzReceive_)
     {
         genesisBlockHash = genesisBlockHash_;
         startTokenId = startTokenId_;
@@ -57,7 +52,11 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         _registerTraversableSeeds(
             tokenId,
             genesisBlockHash,
-            keccak256(abi.encodePacked(blockhash(block.number - 1), tokenId))
+            uint256(
+                keccak256(
+                    abi.encodePacked(blockhash(block.number - 1), tokenId)
+                )
+            )
         );
         supplied++;
     }
@@ -70,40 +69,34 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         returns (string memory tokenURI)
     {
         require(_exists(tokenId), "ChainBeats: nonexistent token");
-        (bytes32 birthChainSeed, bytes32 tokenIdSeed) = _getTraversableSeeds(
+        (uint256 birthChainSeed, uint256 tokenIdSeed) = _getTraversableSeeds(
             tokenId
         );
-        uint256 sampleRate = WAVE.calculateSampleRate(uint256(birthChainSeed));
-        uint256 hertz = WAVE.calculateHertz(uint256(tokenIdSeed));
-        uint256 dutyCycle = WAVE.calculateDutyCycle(uint256(tokenIdSeed));
-        bytes memory wave = WAVE.generate(sampleRate, hertz, dutyCycle);
-        bytes memory svg = SVG.generate(wave);
+        uint256 sampleRate = WAVE.calculateSampleRate(genesisBlockHash);
+        uint256 dutyCycle = WAVE.calculateDutyCycle(birthChainSeed);
+        uint256 waveWidth = WAVE.calculateWaveWidth(sampleRate, tokenIdSeed);
+        bytes memory wave = WAVE.generate(sampleRate, waveWidth, dutyCycle);
         bytes memory metadata = abi.encodePacked(
-            "{",
-            '"name":"ChainBeats #',
+            '{"name":"ChainBeats #',
             Strings.toString(tokenId),
-            '","description": "A unique beat represented entirely on-chain."',
-            ',"image":"',
-            svg,
+            '","description": "A unique beat represented entirely on-chain.","image":"',
+            SVG.generate(wave),
             '","animation_url":"',
             wave,
             '","attributes":',
             abi.encodePacked(
-                "[{",
-                '"trait_type":"SAMPLE RATE","value":"',
+                '[{"trait_type":"SAMPLE RATE","value":"',
                 Strings.toString(sampleRate),
-                '"},{',
-                '"trait_type":"HERTS","value":"',
-                Strings.toString(hertz),
-                '"},{',
-                '"trait_type":"DUTY CYCLE","value":"',
+                '"},{"trait_type":"DUTY CYCLE","value":"',
                 Strings.toString(dutyCycle),
-                '"},{',
-                '"trait_type":"BIRTH CHAIN SEED","value":"',
-                Strings.toHexString(uint256(birthChainSeed), 32),
-                '"},{',
-                '"trait_type":"TOKEN ID SEED","value":"',
-                Strings.toHexString(uint256(tokenIdSeed), 32),
+                '"},{"trait_type":"WAVE WIDTH","value":"',
+                Strings.toString(waveWidth),
+                '"},{"trait_type":"APPROXIMATE HERTS","value":"',
+                Strings.toString(sampleRate / waveWidth),
+                '"},{"trait_type":"BIRTH CHAIN SEED","value":"',
+                Strings.toHexString(birthChainSeed, 32),
+                '"},{"trait_type":"TOKEN ID SEED","value":"',
+                Strings.toHexString(tokenIdSeed, 32),
                 '"}]'
             ),
             "}"

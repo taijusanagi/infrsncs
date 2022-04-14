@@ -31,21 +31,25 @@ library WAVE {
         return _ramdom(seed, _MAX_SAMPLE_RATE, _MIN_SAMPLE_RATE);
     }
 
-    function calculateHertz(uint256 seed) internal pure returns (uint256) {
-        return _ramdom(seed, _MAX_HERTZ, _MIN_HERTZ);
-    }
-
     function calculateDutyCycle(uint256 seed) internal pure returns (uint256) {
         return _ramdom(seed, _MAX_DUTY_CYCLE, _MIN_DUTY_CYCLE);
     }
 
+    function calculateWaveWidth(uint256 sampleRate, uint256 seed)
+        internal
+        pure
+        returns (uint256)
+    {
+        return _ramdom(seed, sampleRate / _MIN_HERTZ, sampleRate / _MAX_HERTZ);
+    }
+
     function generate(
         uint256 sampleRate,
-        uint256 hertz,
+        uint256 waveWidth,
         uint256 dutyCycle
     ) internal pure returns (bytes memory) {
         bytes memory wave;
-        uint256 waveWidth = sampleRate / hertz;
+
         uint256 amplitudesLength = 1;
         while (waveWidth >= 2**amplitudesLength) {
             amplitudesLength++;

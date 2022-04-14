@@ -16,14 +16,11 @@ abstract contract Omnichain is
 {
     uint256 public gasForDestinationLzReceive;
 
+    mapping(uint256 => uint256) private _birthChainSeeds;
+    mapping(uint256 => uint256) private _tokenIdSeeds;
 
-    mapping(uint256 => bytes32) private _birthChainSeeds;
-    mapping(uint256 => bytes32) private _tokenIdSeeds;
-
-    constructor(
-        address layerZeroEndpoint,
-        uint256 gasForDestinationLzReceive_,
-    ) {
+    constructor(address layerZeroEndpoint, uint256 gasForDestinationLzReceive_)
+    {
         endpoint = ILayerZeroEndpoint(layerZeroEndpoint);
         gasForDestinationLzReceive = gasForDestinationLzReceive_;
     }
@@ -66,14 +63,14 @@ abstract contract Omnichain is
     {
         require(
             msg.sender == ownerOf(tokenId),
-            "ChainBeats: Message sender must own the OmnichainNFT."
+            "Omnichain: Message sender must own the OmnichainNFT"
         );
         require(
             trustedSourceLookup[chainId].length != 0,
-            "ChainBeats: This chain is not a trusted source source."
+            "Omnichain: This chain is not a trusted source"
         );
 
-        (bytes32 birthChainSeed, bytes32 tokenIdSeed) = getTraversableSeeds(
+        (uint256 birthChainSeed, uint256 tokenIdSeed) = _getTraversableSeeds(
             tokenId
         );
         bytes memory payload = abi.encode(
@@ -96,7 +93,7 @@ abstract contract Omnichain is
         );
         require(
             msg.value >= quotedLayerZeroFee,
-            "ChainBeats: Not enough gas to cover cross chain transfer."
+            "Omnichain: Not enough gas to cover cross chain transfer."
         );
 
         _unregisterTraversableSeeds(tokenId);
@@ -115,8 +112,8 @@ abstract contract Omnichain is
 
     function _registerTraversableSeeds(
         uint256 tokenId,
-        bytes32 birthChainSeed,
-        bytes32 tokenIdSeed
+        uint256 birthChainSeed,
+        uint256 tokenIdSeed
     ) internal {
         _birthChainSeeds[tokenId] = birthChainSeed;
         _tokenIdSeeds[tokenId] = tokenIdSeed;
@@ -137,9 +134,9 @@ abstract contract Omnichain is
         (
             address to,
             uint256 tokenId,
-            bytes32 birthChainSeed,
-            bytes32 tokenIdSeed
-        ) = abi.decode(payload, (address, uint256, bytes32, bytes32));
+            uint256 birthChainSeed,
+            uint256 tokenIdSeed
+        ) = abi.decode(payload, (address, uint256, uint256, uint256));
         _safeMint(to, tokenId);
         _registerTraversableSeeds(tokenId, birthChainSeed, tokenIdSeed);
     }
@@ -147,7 +144,7 @@ abstract contract Omnichain is
     function _getTraversableSeeds(uint256 tokenId)
         internal
         view
-        returns (bytes32 birthChainSeed, bytes32 tokenIdSeed)
+        returns (uint256 birthChainSeed, uint256 tokenIdSeed)
     {
         return (_birthChainSeeds[tokenId], _tokenIdSeeds[tokenId]);
     }
