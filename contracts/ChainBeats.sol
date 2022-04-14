@@ -16,6 +16,8 @@ import "./Omnichain.sol";
 import "./WAVE.sol";
 
 contract ChainBeats is ERC721, Ownable, Omnichain {
+    bytes32 public genesisBlockHash;
+
     uint256 public supplied;
     uint256 public startTokenId;
     uint256 public endTokenId;
@@ -24,7 +26,7 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
     constructor(
         address layerZeroEndpoint,
         uint256 gasForDestinationLzReceive_,
-        bytes32 birthChainGenesisBlockHash_,
+        bytes32 genesisBlockHash_,
         uint256 startTokenId_,
         uint256 endTokenId_,
         uint256 mintPrice_
@@ -36,6 +38,7 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
             birthChainGenesisBlockHash_
         )
     {
+        genesisBlockHash = genesisBlockHash_;
         startTokenId = startTokenId_;
         endTokenId = endTokenId_;
         mintPrice = mintPrice_;
@@ -53,7 +56,7 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         _safeMint(to, tokenId);
         _registerTraversableSeeds(
             tokenId,
-            birthChainGenesisBlockHash,
+            genesisBlockHash,
             keccak256(abi.encodePacked(blockhash(block.number - 1), tokenId))
         );
         supplied++;
@@ -64,10 +67,10 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         view
         virtual
         override
-        returns (string memory tokenURI_)
+        returns (string memory tokenURI)
     {
         require(_exists(tokenId), "ChainBeats: nonexistent token");
-        (bytes32 birthChainSeed, bytes32 tokenIdSeed) = getTraversableSeeds(
+        (bytes32 birthChainSeed, bytes32 tokenIdSeed) = _getTraversableSeeds(
             tokenId
         );
         uint256 sampleRate = WAVE.calculateSampleRate(uint256(birthChainSeed));
@@ -105,11 +108,12 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
             ),
             "}"
         );
-        tokenURI_ = string(
-            abi.encodePacked(
-                "data:application/json;base64,",
-                Base64.encode(metadata)
-            )
-        );
+        return
+            string(
+                abi.encodePacked(
+                    "data:application/json;base64,",
+                    Base64.encode(metadata)
+                )
+            );
     }
 }

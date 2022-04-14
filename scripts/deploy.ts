@@ -1,5 +1,4 @@
 import { ethers, network } from "hardhat";
-import { GAS_FOR_DESTINATION_LZ_RECEIVE } from "../lib/constants";
 
 const omnichain = require("../omnichain.json");
 
@@ -8,7 +7,7 @@ async function main() {
   const ChainBeats = await ethers.getContractFactory("ChainBeats");
   const chainBeats = await ChainBeats.deploy(
     config.endpoint,
-    GAS_FOR_DESTINATION_LZ_RECEIVE,
+    config.gasForDestinationLzReceive,
     config.genesisBlockHash,
     config.startTokenId,
     config.endTokenId,
@@ -20,8 +19,7 @@ async function main() {
   await chainBeats.mint(signer.address, { value: mintPrice });
   await chainBeats.mint(signer.address, { value: mintPrice });
   await chainBeats.mint(signer.address, { value: mintPrice });
-  console.log("ChainBeats deployed to:", chainBeats.address);
-  console.log("ChainBeats minted to:", signer.address);
+  omnichain[network.name].deployed = chainBeats.address;
 }
 
 main().catch((error) => {

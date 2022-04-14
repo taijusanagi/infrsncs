@@ -14,8 +14,8 @@ abstract contract Omnichain is
     NonblockingReceiver,
     ILayerZeroUserApplicationConfig
 {
-    bytes32 public birthChainGenesisBlockHash;
     uint256 public gasForDestinationLzReceive;
+
 
     mapping(uint256 => bytes32) private _birthChainSeeds;
     mapping(uint256 => bytes32) private _tokenIdSeeds;
@@ -23,11 +23,9 @@ abstract contract Omnichain is
     constructor(
         address layerZeroEndpoint,
         uint256 gasForDestinationLzReceive_,
-        bytes32 birthChainGenesisBlockHash_
     ) {
         endpoint = ILayerZeroEndpoint(layerZeroEndpoint);
         gasForDestinationLzReceive = gasForDestinationLzReceive_;
-        birthChainGenesisBlockHash = birthChainGenesisBlockHash_;
     }
 
     function setConfig(
@@ -115,15 +113,6 @@ abstract contract Omnichain is
         );
     }
 
-    function getTraversableSeeds(uint256 tokenId)
-        public
-        view
-        returns (bytes32 birthChainSeed, bytes32 tokenIdSeed)
-    {
-        birthChainSeed = _birthChainSeeds[tokenId];
-        tokenIdSeed = _tokenIdSeeds[tokenId];
-    }
-
     function _registerTraversableSeeds(
         uint256 tokenId,
         bytes32 birthChainSeed,
@@ -153,5 +142,13 @@ abstract contract Omnichain is
         ) = abi.decode(payload, (address, uint256, bytes32, bytes32));
         _safeMint(to, tokenId);
         _registerTraversableSeeds(tokenId, birthChainSeed, tokenIdSeed);
+    }
+
+    function _getTraversableSeeds(uint256 tokenId)
+        internal
+        view
+        returns (bytes32 birthChainSeed, bytes32 tokenIdSeed)
+    {
+        return (_birthChainSeeds[tokenId], _tokenIdSeeds[tokenId]);
     }
 }

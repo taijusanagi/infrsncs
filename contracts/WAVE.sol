@@ -2,7 +2,6 @@
 pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/utils/Base64.sol";
-
 import "./ByteSwapping.sol";
 
 library WAVE {
@@ -28,35 +27,24 @@ library WAVE {
     uint256 private constant _MIN_DUTY_CYCLE = 1;
     uint256 private constant _DUTY_CYCLE_BASE = 100;
 
-    function calculateSampleRate(uint256 seed)
-        internal
-        pure
-        returns (uint256 sampleRate)
-    {
-        sampleRate = _ramdom(seed, _MAX_SAMPLE_RATE, _MIN_SAMPLE_RATE);
+    function calculateSampleRate(uint256 seed) internal pure returns (uint256) {
+        return _ramdom(seed, _MAX_SAMPLE_RATE, _MIN_SAMPLE_RATE);
     }
 
-    function calculateHertz(uint256 seed)
-        internal
-        pure
-        returns (uint256 hertz)
-    {
-        hertz = _ramdom(seed, _MAX_HERTZ, _MIN_HERTZ);
+    function calculateHertz(uint256 seed) internal pure returns (uint256) {
+        return _ramdom(seed, _MAX_HERTZ, _MIN_HERTZ);
     }
 
-    function calculateDutyCycle(uint256 seed)
-        internal
-        pure
-        returns (uint256 dutyCycle)
-    {
-        dutyCycle = _ramdom(seed, _MAX_DUTY_CYCLE, _MIN_DUTY_CYCLE);
+    function calculateDutyCycle(uint256 seed) internal pure returns (uint256) {
+        return _ramdom(seed, _MAX_DUTY_CYCLE, _MIN_DUTY_CYCLE);
     }
 
     function generate(
         uint256 sampleRate,
         uint256 hertz,
         uint256 dutyCycle
-    ) internal pure returns (bytes memory wave) {
+    ) internal pure returns (bytes memory) {
+        bytes memory wave;
         uint256 waveWidth = sampleRate / hertz;
         uint256 amplitudesLength = 1;
         while (waveWidth >= 2**amplitudesLength) {
@@ -107,22 +95,23 @@ library WAVE {
             wave = abi.encodePacked(wave, upperWave, lowerWave);
         }
         wave = abi.encodePacked(wave, adjustWave);
-        wave = _encode(uint32(sampleRate), wave);
+        return _encode(uint32(sampleRate), wave);
     }
 
     function _ramdom(
         uint256 seed,
         uint256 max,
         uint256 min
-    ) private pure returns (uint256 ramdom) {
-        ramdom = (seed % (max - min)) + min;
+    ) private pure returns (uint256) {
+        return (seed % (max - min)) + min;
     }
 
     function _concatAmplitudes(bytes[] memory amplitudes, uint256 waveWidth)
         private
         pure
-        returns (bytes memory concated)
+        returns (bytes memory)
     {
+        bytes memory concated;
         uint256 lastAmplitudesIndex = amplitudes.length - 1;
         while (concated.length < waveWidth * 2) {
             uint256 gap = waveWidth * 2 - concated.length;
@@ -134,90 +123,75 @@ library WAVE {
                 }
             }
         }
+        return concated;
     }
 
     function _encode(uint32 sampleRate, bytes memory data)
         private
         pure
-        returns (bytes memory output)
+        returns (bytes memory)
     {
         bytes memory raw = abi.encodePacked(
             _riffChunk(sampleRate),
             _fmtSubChunk(sampleRate),
             _dataSubChunk(sampleRate, data)
         );
-        output = abi.encodePacked("data:audio/wav;base64,", Base64.encode(raw));
+        return abi.encodePacked("data:audio/wav;base64,", Base64.encode(raw));
     }
 
-    function _riffChunk(uint32 sampleRate)
-        private
-        pure
-        returns (bytes memory riffChunk)
-    {
-        riffChunk = abi.encodePacked(
-            _CHANK_ID,
-            ByteSwapping.swapUint32(_chunkSize(sampleRate)),
-            _FORMAT
-        );
+    function _riffChunk(uint32 sampleRate) private pure returns (bytes memory) {
+        return
+            abi.encodePacked(
+                _CHANK_ID,
+                ByteSwapping.swapUint32(_chunkSize(sampleRate)),
+                _FORMAT
+            );
     }
 
-    function _chunkSize(uint32 sampleRate)
-        private
-        pure
-        returns (uint32 chunkSize)
-    {
-        chunkSize =
-            4 +
-            (8 + _SUB_CHANK_1_SIZE) +
-            (8 + _subchunk2Size(sampleRate));
+    function _chunkSize(uint32 sampleRate) private pure returns (uint32) {
+        return 4 + (8 + _SUB_CHANK_1_SIZE) + (8 + _subchunk2Size(sampleRate));
     }
 
     function _fmtSubChunk(uint32 sampleRate)
         private
         pure
-        returns (bytes memory fmtSubChunk)
+        returns (bytes memory)
     {
-        fmtSubChunk = abi.encodePacked(
-            _SUB_CHANK_1_ID,
-            ByteSwapping.swapUint32(_SUB_CHANK_1_SIZE),
-            ByteSwapping.swapUint16(_AUDIO_FORMAT),
-            ByteSwapping.swapUint16(_NUM_CHANNELS),
-            ByteSwapping.swapUint32(sampleRate),
-            ByteSwapping.swapUint32(_byteRate(sampleRate)),
-            ByteSwapping.swapUint16(_blockAlign()),
-            ByteSwapping.swapUint16(_BITS_PER_SAMPLE)
-        );
+        return
+            abi.encodePacked(
+                _SUB_CHANK_1_ID,
+                ByteSwapping.swapUint32(_SUB_CHANK_1_SIZE),
+                ByteSwapping.swapUint16(_AUDIO_FORMAT),
+                ByteSwapping.swapUint16(_NUM_CHANNELS),
+                ByteSwapping.swapUint32(sampleRate),
+                ByteSwapping.swapUint32(_byteRate(sampleRate)),
+                ByteSwapping.swapUint16(_blockAlign()),
+                ByteSwapping.swapUint16(_BITS_PER_SAMPLE)
+            );
     }
 
-    function _byteRate(uint32 sampleRate)
-        private
-        pure
-        returns (uint32 byteRate)
-    {
-        byteRate = (sampleRate * _NUM_CHANNELS * _BITS_PER_SAMPLE) / 8;
+    function _byteRate(uint32 sampleRate) private pure returns (uint32) {
+        return (sampleRate * _NUM_CHANNELS * _BITS_PER_SAMPLE) / 8;
     }
 
-    function _blockAlign() private pure returns (uint16 blockAlign) {
-        blockAlign = (_NUM_CHANNELS * _BITS_PER_SAMPLE) / 8;
+    function _blockAlign() private pure returns (uint16) {
+        return (_NUM_CHANNELS * _BITS_PER_SAMPLE) / 8;
     }
 
     function _dataSubChunk(uint32 sampleRate, bytes memory data)
         private
         pure
-        returns (bytes memory dataSubChunk)
+        returns (bytes memory)
     {
-        dataSubChunk = abi.encodePacked(
-            _SUB_CHANK_2_SIZE,
-            ByteSwapping.swapUint32(_subchunk2Size(sampleRate)),
-            data
-        );
+        return
+            abi.encodePacked(
+                _SUB_CHANK_2_SIZE,
+                ByteSwapping.swapUint32(_subchunk2Size(sampleRate)),
+                data
+            );
     }
 
-    function _subchunk2Size(uint32 sampleRate)
-        private
-        pure
-        returns (uint32 subchunk2Size)
-    {
-        subchunk2Size = (sampleRate * _NUM_CHANNELS * _BITS_PER_SAMPLE) / 8;
+    function _subchunk2Size(uint32 sampleRate) private pure returns (uint32) {
+        return (sampleRate * _NUM_CHANNELS * _BITS_PER_SAMPLE) / 8;
     }
 }

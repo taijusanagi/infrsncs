@@ -1,0 +1,73 @@
+{
+  "mainnet": {
+    "chainId": "1",
+    "rpc": "https://mainnet.infura.io/v3/95f65ab099894076814e8526f52c9149",
+    "explore": "https://etherscan.io/"
+  },
+  "rinkeby": {
+    "chainId": "4",
+    "rpc": "https://rinkeby.infura.io/v3/95f65ab099894076814e8526f52c9149",
+    "explore": "https://rinkeby.etherscan.io/"
+  },
+  "bsc": {
+    "chainId": "56",
+    "rpc": "https://bsc-dataseed.binance.org/",
+    "explore": "https://bscscan.com/"
+  },
+  "optimistic_kovan": {
+    "chainId": "69",
+    "rpc": "https://kovan.optimism.io",
+    "explore": "https://kovan-optimistic.etherscan.io/"
+  },
+  "bsc_test": {
+    "chainId": "97",
+    "rpc": "https://data-seed-prebsc-1-s1.binance.org:8545/",
+    "explore": "https://testnet.bscscan.com/",
+    "chocofactory": "0x7cD29C50908154DFB1B8320F3e39d2726F9ba0A2",
+    "chocomold": "0xF3b854C226C72e99a251C285b5C67E343323A8c2"
+  },
+
+  "polygon": {
+    "chainId": "137",
+    "rpc": "https://polygon-mainnet.g.alchemy.com/v2/odtelyP_4AoBBN5bjNnVwu-dDKmhBAgK",
+    "explore": "https://explorer-mainnet.maticvigil.com/"
+  },
+  "fantom": {
+    "chainId": "250",
+    "rpc": "https://rpc.ftm.tools/",
+    "explore": "https://ftmscan.com/"
+  },
+  "fantom_test": {
+    "chainId": "4002",
+    "rpc": "https://rpc.testnet.fantom.network/",
+    "explore": "https://testnet.ftmscan.com/"
+  },
+  "arbitrum": {
+    "chainId": "42161",
+    "rpc": "https://arb1.arbitrum.io/rpc",
+    "explore": "https://arbiscan.io/"
+  },
+
+  "avalanch_fuji": {
+    "chainId": "43113",
+    "rpc": "https://api.avax-test.network/ext/bc/C/rpc",
+    "explore": "https://cchain.explorer.avax-test.network/"
+  },
+  "avalanch_c": {
+    "chainId": "43114",
+    "rpc": "https://api.avax.network/ext/bc/C/rpc",
+    "explore": "https://cchain.explorer.avax.network/"
+  },
+
+  "mumbai": {
+    "chainId": "80001",
+    "rpc": "https://polygon-mumbai.g.alchemy.com/v2/odtelyP_4AoBBN5bjNnVwu-dDKmhBAgK",
+    "explore": "https://explorer-mumbai.maticvigil.com/"
+  },
+
+  "rinkarby": {
+    "chainId": "421611",
+    "rpc": "https://rinkeby.arbitrum.io/rpc",
+    "explore": "https://testnet.arbiscan.io/"
+  }
+}
