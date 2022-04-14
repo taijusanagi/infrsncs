@@ -1,71 +1,70 @@
 {
-  "mainnet": {
+  "ethereum_mainnet": {
     "chainId": "1",
     "rpc": "https://mainnet.infura.io/v3/95f65ab099894076814e8526f52c9149",
     "explore": "https://etherscan.io/"
   },
-  "rinkeby": {
+  "ethereum_testnet": {
     "chainId": "4",
     "rpc": "https://rinkeby.infura.io/v3/95f65ab099894076814e8526f52c9149",
     "explore": "https://rinkeby.etherscan.io/"
   },
-  "bsc": {
+  "optimism_mainnet": {
+    "chainId": "10",
+    "rpc": "https://mainnet.optimism.io",
+    "explore": "https://optimistic.etherscan.io/"
+  },
+  "bsc_mainnet": {
     "chainId": "56",
     "rpc": "https://bsc-dataseed.binance.org/",
     "explore": "https://bscscan.com/"
   },
-  "optimistic_kovan": {
+  "optimism_testnet": {
     "chainId": "69",
     "rpc": "https://kovan.optimism.io",
     "explore": "https://kovan-optimistic.etherscan.io/"
   },
-  "bsc_test": {
+  "bsc_testnet": {
     "chainId": "97",
     "rpc": "https://data-seed-prebsc-1-s1.binance.org:8545/",
-    "explore": "https://testnet.bscscan.com/",
-    "chocofactory": "0x7cD29C50908154DFB1B8320F3e39d2726F9ba0A2",
-    "chocomold": "0xF3b854C226C72e99a251C285b5C67E343323A8c2"
+    "explore": "https://testnet.bscscan.com/"
   },
-
-  "polygon": {
+  "polygon_mainnet": {
     "chainId": "137",
     "rpc": "https://polygon-mainnet.g.alchemy.com/v2/odtelyP_4AoBBN5bjNnVwu-dDKmhBAgK",
     "explore": "https://explorer-mainnet.maticvigil.com/"
   },
-  "fantom": {
+  "fantom_mainnet": {
     "chainId": "250",
     "rpc": "https://rpc.ftm.tools/",
     "explore": "https://ftmscan.com/"
   },
-  "fantom_test": {
+  "fantom_testnet": {
     "chainId": "4002",
     "rpc": "https://rpc.testnet.fantom.network/",
     "explore": "https://testnet.ftmscan.com/"
   },
-  "arbitrum": {
+  "arbitrum_mainnet": {
     "chainId": "42161",
     "rpc": "https://arb1.arbitrum.io/rpc",
     "explore": "https://arbiscan.io/"
   },
-
-  "avalanch_fuji": {
+  "avalanche_testnet": {
     "chainId": "43113",
     "rpc": "https://api.avax-test.network/ext/bc/C/rpc",
     "explore": "https://cchain.explorer.avax-test.network/"
   },
-  "avalanch_c": {
+  "avalanche_mainnet": {
     "chainId": "43114",
     "rpc": "https://api.avax.network/ext/bc/C/rpc",
     "explore": "https://cchain.explorer.avax.network/"
   },
-
-  "mumbai": {
+  "polygon_testnet": {
     "chainId": "80001",
     "rpc": "https://polygon-mumbai.g.alchemy.com/v2/odtelyP_4AoBBN5bjNnVwu-dDKmhBAgK",
     "explore": "https://explorer-mumbai.maticvigil.com/"
   },
-
-  "rinkarby": {
+  "arbitrum_testnet": {
     "chainId": "421611",
     "rpc": "https://rinkeby.arbitrum.io/rpc",
     "explore": "https://testnet.arbiscan.io/"

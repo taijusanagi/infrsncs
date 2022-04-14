@@ -1,5 +1,5 @@
 {
-  "Ethereum_MAINNET": {
+  "ethereum_mainnet": {
     "chainId": 1,
     "endpoint": "0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675",
     "gasForDestinationLzReceive": "225000",
@@ -9,7 +9,7 @@
     "mintPrice": "0",
     "deployed": ""
   },
-  "BinanceSmartChain_MAINNET": {
+  "bsc_mainnet": {
     "chainId": 2,
     "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
     "gasForDestinationLzReceive": "225000",
@@ -19,7 +19,7 @@
     "mintPrice": "0",
     "deployed": ""
   },
-  "Avalanche_MAINNET​": {
+  "avalanche_mainnet": {
     "chainId": 6,
     "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
     "gasForDestinationLzReceive": "225000",
@@ -29,7 +29,7 @@
     "mintPrice": "0",
     "deployed": ""
   },
-  "Polygon_MAINNET": {
+  "polygon_mainnet": {
     "chainId": 9,
     "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
     "gasForDestinationLzReceive": "225000",
@@ -39,7 +39,7 @@
     "mintPrice": "0",
     "deployed": ""
   },
-  "Arbitrum_MAINNET": {
+  "arbitrum_mainnet": {
     "chainId": 10,
     "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
     "gasForDestinationLzReceive": "225000",
@@ -49,7 +49,7 @@
     "mintPrice": "0",
     "deployed": ""
   },
-  "Optimism_MAINNET": {
+  "optimism_mainnet": {
     "chainId": 11,
     "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
     "gasForDestinationLzReceive": "225000",
@@ -59,7 +59,7 @@
     "mintPrice": "0",
     "deployed": ""
   },
-  "Fantom_MAINNET": {
+  "fantom_mainnet": {
     "chainId": 12,
     "endpoint": "0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7",
     "gasForDestinationLzReceive": "225000",
@@ -69,7 +69,7 @@
     "mintPrice": "0",
     "deployed": ""
   },
-  "Rinkeby_TESTNET": {
+  "ethereum_testnet": {
     "chainId": 10001,
     "endpoint": "0x79a63d6d8BBD5c6dfc774dA79bCcD948EAcb53FA",
     "gasForDestinationLzReceive": "225000",
@@ -79,7 +79,7 @@
     "mintPrice": "0",
     "deployed": ""
   },
-  "BinanceSmartChain_TESTNET": {
+  "bsc_testnet": {
     "chainId": 10002,
     "endpoint": "0x6Fcb97553D41516Cb228ac03FdC8B9a0a9df04A1",
     "gasForDestinationLzReceive": "225000",
@@ -89,7 +89,7 @@
     "mintPrice": "0",
     "deployed": ""
   },
-  "Fuji_TESTNET": {
+  "avalanche_testnet": {
     "chainId": 10006,
     "endpoint": "0x93f54D755A063cE7bB9e6Ac47Eccc8e33411d706",
     "gasForDestinationLzReceive": "225000",
@@ -99,7 +99,7 @@
     "mintPrice": "0",
     "deployed": ""
   },
-  "Mumbai_TESTNET": {
+  "polygon_testnet": {
     "chainId": 10009,
     "endpoint": "0xf69186dfBa60DdB133E91E9A4B5673624293d8F8",
     "gasForDestinationLzReceive": "225000",
@@ -109,7 +109,7 @@
     "mintPrice": "0",
     "deployed": ""
   },
-  "Arbitrum_TESTNET": {
+  "arbitrum_testnet": {
     "chainId": 10010,
     "endpoint": "0x4D747149A57923Beb89f22E6B7B97f7D8c087A00",
     "gasForDestinationLzReceive": "225000",
@@ -119,7 +119,7 @@
     "mintPrice": "0",
     "deployed": ""
   },
-  "Optimism_TESTNET": {
+  "optimism_testnet": {
     "chainId": 10011,
     "endpoint": "0x72aB53a133b27Fa428ca7Dc263080807AfEc91b5",
     "gasForDestinationLzReceive": "225000",
@@ -129,7 +129,7 @@
     "mintPrice": "0",
     "deployed": ""
   },
-  "Fantom_TESTNET": {
+  "fantom_testnet": {
     "chainId": 10012,
     "endpoint": "0x7dcAD72640F835B0FA36EFD3D6d3ec902C7E5acf",
     "gasForDestinationLzReceive": "225000",

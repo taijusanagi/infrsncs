@@ -7,6 +7,8 @@ import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 
+import networks from "./network.json";
+
 dotenv.config();
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -33,21 +35,21 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    Rinkeby_TESTNET: {
-      url: process.env.RINKEBY_URL || "",
+    ethereum_testnet: {
+      url: networks.ethereum_testnet.rpc,
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    Mumbai_TESTNET: {
-      url: process.env.MUMBAI_URL || "",
+    polygon_testnet: {
+      url: networks.polygon_testnet.rpc,
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
   },
-  // gasReporter: {
-  //   enabled: process.env.REPORT_GAS !== undefined,
-  //   currency: "USD",
-  // },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS !== undefined,
+    currency: "USD",
+  },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
