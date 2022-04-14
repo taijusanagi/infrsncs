@@ -6,29 +6,72 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
+import "solidity-examples/contracts/NonBlockingReceiver.sol";
+import "solidity-examples/contracts/interfaces/ILayerZeroEndpoint.sol";
+import "solidity-examples/contracts/interfaces/ILayerZeroUserApplicationConfig.sol";
+
 import "./ByteSwapping.sol";
-import "./Omnichain.sol";
 import "./WAVE.sol";
 import "./SVG.sol";
 
-contract ChainBeats is ERC721, Ownable, Omnichain {
+contract ChainBeats is
+    ERC721,
+    Ownable,
+    NonblockingReceiver,
+    ILayerZeroUserApplicationConfig
+{
     uint256 public supplied;
     uint256 public startTokenId;
     uint256 public endTokenId;
     uint256 public mintPrice;
 
-    mapping(uint256 => bytes32) public birthChainSeeds;
-    mapping(uint256 => bytes32) public tokenIdSeeds;
+    uint256 public gasForDestinationLzReceive = 350000;
+
+    mapping(uint256 => uint256) public mintedBlockNumbers;
+    mapping(uint256 => bytes32) public birthChainGenesisBlockHashes;
 
     constructor(
         address layerZeroEndpoint,
         uint256 startTokenId_,
         uint256 endTokenId_,
         uint256 mintPrice_
-    ) ERC721("ChainBeats", "CB") Omnichain(layerZeroEndpoint) {
+    ) ERC721("ChainBeats", "CB") {
+        endpoint = ILayerZeroEndpoint(layerZeroEndpoint);
         startTokenId = startTokenId_;
         endTokenId = endTokenId_;
         mintPrice = mintPrice_;
+    }
+
+    function setConfig(
+        uint16 version,
+        uint16 chainId,
+        uint256 configType,
+        bytes calldata config
+    ) external override onlyOwner {
+        endpoint.setConfig(version, chainId, configType, config);
+    }
+
+    function setSendVersion(uint16 version) external override onlyOwner {
+        endpoint.setSendVersion(version);
+    }
+
+    function setReceiveVersion(uint16 version) external override onlyOwner {
+        endpoint.setReceiveVersion(version);
+    }
+
+    function forceResumeReceive(uint16 srcChainId, bytes calldata srcAddress)
+        external
+        override
+        onlyOwner
+    {
+        endpoint.forceResumeReceive(srcChainId, srcAddress);
+    }
+
+    function setGasForDestinationLzReceive(uint256 gasForDestinationLzReceive_)
+        external
+        onlyOwner
+    {
+        gasForDestinationLzReceive = gasForDestinationLzReceive_;
     }
 
     function withdraw() public onlyOwner {
@@ -36,17 +79,69 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         payable(msg.sender).transfer(balance);
     }
 
-    //burnの時にseed消す
-
     function mint(address to) public payable virtual {
         require(msg.value >= mintPrice, "ChainBeats: msg value invalid");
         uint256 tokenId = startTokenId + supplied;
         require(tokenId <= endTokenId, "ChainBeats: mint finished");
-        tokenIdSeeds[tokenId] = keccak256(
-            abi.encodePacked(blockhash(block.number - 1), tokenId)
-        );
         _safeMint(to, tokenId);
+        _registerTraversableAttributes(tokenId, block.number, blockhash(0));
         supplied++;
+    }
+
+    function transferOmnichainNFT(uint16 chainId, uint256 tokenId)
+        public
+        payable
+    {
+        require(
+            msg.sender == ownerOf(tokenId),
+            "ChainBeats: Message sender must own the OmnichainNFT."
+        );
+        require(
+            trustedSourceLookup[chainId].length != 0,
+            "ChainBeats: This chain is not a trusted source source."
+        );
+
+        (
+            uint256 mintedBlockNumber,
+            bytes32 birthChainGenesisBlockHash
+        ) = getTraversableAttributes(tokenId);
+
+        bytes memory payload = abi.encode(
+            msg.sender,
+            tokenId,
+            mintedBlockNumber,
+            birthChainGenesisBlockHash
+        );
+        uint16 version = 1;
+        bytes memory adapterParams = abi.encodePacked(
+            version,
+            gasForDestinationLzReceive
+        );
+        (uint256 quotedLayerZeroFee, ) = endpoint.estimateFees(
+            chainId,
+            address(this),
+            payload,
+            false,
+            adapterParams
+        );
+        require(
+            msg.value >= quotedLayerZeroFee,
+            "ChainBeats: Not enough gas to cover cross chain transfer."
+        );
+
+        delete mintedBlockNumbers[tokenId];
+        delete birthChainGenesisBlockHashes[tokenId];
+        _burn(tokenId);
+
+        // solhint-disable-next-line check-send-result
+        endpoint.send{value: msg.value}(
+            chainId,
+            trustedSourceLookup[chainId],
+            payload,
+            payable(msg.sender),
+            address(0x0),
+            adapterParams
+        );
     }
 
     function tokenURI(uint256 tokenId)
@@ -96,20 +191,43 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         metadata = string(_getMetadata(tokenId));
     }
 
-    function _registerTraverse(
-        uint256 tokenId,
-        bytes32 birthChainSeed,
-        bytes32 tokenIdSeed
-    ) internal override {
-        birthChainSeeds[tokenId] = birthChainSeed;
-        tokenIdSeeds[tokenId] = tokenIdSeed;
+    function getTraversableAttributes(uint256 tokenId)
+        public
+        view
+        returns (uint256 mintedBlockNumber, bytes32 birthChainGenesisBlockHash)
+    {
+        mintedBlockNumber = mintedBlockNumbers[tokenId];
+        birthChainGenesisBlockHash = birthChainGenesisBlockHashes[tokenId];
     }
 
-    function _burn(uint256 tokenId) internal override {
-        if (birthChainSeeds[tokenId] != "") {
-            delete birthChainSeeds[tokenId];
-        }
-        delete tokenIdSeeds[tokenId];
+    function _registerTraversableAttributes(
+        uint256 tokenId,
+        uint256 mintedBlockNumber,
+        bytes32 birthChainGenesisBlockHash
+    ) internal {
+        mintedBlockNumbers[tokenId] = mintedBlockNumber;
+        birthChainGenesisBlockHashes[tokenId] = birthChainGenesisBlockHash;
+    }
+
+    // solhint-disable-next-line func-name-mixedcase
+    function _LzReceive(
+        uint16 _srcChainId, // solhint-disable-line no-unused-vars
+        bytes memory _srcAddress, // solhint-disable-line no-unused-vars
+        uint64 _nonce, // solhint-disable-line no-unused-vars
+        bytes memory payload
+    ) internal override {
+        (
+            address dstOmnichainNFTAddress,
+            uint256 omnichainNFTTokenId,
+            uint256 mintedBlockNumber,
+            bytes32 birthChainGenesisBlockHash
+        ) = abi.decode(payload, (address, uint256, uint256, bytes32));
+        _safeMint(dstOmnichainNFTAddress, omnichainNFTTokenId);
+        _registerTraversableAttributes(
+            omnichainNFTTokenId,
+            mintedBlockNumber,
+            birthChainGenesisBlockHash
+        );
     }
 
     function _getMetadata(uint256 tokenId)
@@ -128,27 +246,34 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
         ) = getData(tokenId);
 
         metadata = abi.encodePacked(
+            "{",
+            '"name":"ChainBeats #', // solhint-disable-line quotes
+            Strings.toString(tokenId),
+            '","description": "A unique beat represented entirely on-chain."',
+            ',"image":"', // solhint-disable-line quotes
+            svg,
+            '","animation_url":"', // solhint-disable-line quotes
+            wave,
+            '","attributes":',
             abi.encodePacked(
-                '{"name": "ChainBeats #', // solhint-disable-line quotes
-                Strings.toString(tokenId),
-                '", "description": "A unique beat represented entirely on-chain.", "image": "', // solhint-disable-line quotes
-                svg,
-                '", "animation_url": "', // solhint-disable-line quotes
-                wave
-            ),
-            abi.encodePacked(
-                '", "attributes": [{"trait_type": "SAMPLE RATE","value": ', // solhint-disable-line quotes
+                "[{",
+                '"trait_type":"SAMPLE RATE","value":', // solhint-disable-line quotes
                 Strings.toString(sampleRate),
-                '},{"trait_type": "HERTS","value": ', // solhint-disable-line quotes
+                "},{",
+                '"trait_type":"HERTS","value":', // solhint-disable-line quotes
                 Strings.toString(hertz),
-                '},{"trait_type": "DUTY CYCLE","value": ', // solhint-disable-line quotes
+                "},{",
+                '"trait_type":"DUTY CYCLE","value":', // solhint-disable-line quotes
                 Strings.toString(dutyCycle),
-                '{"trait_type": "BIRTH CHAIN SEED","value": ', // solhint-disable-line quotes
+                "},{",
+                '"trait_type":"BIRTH CHAIN SEED","value":"', // solhint-disable-line quotes
                 Strings.toHexString(uint256(birthChainSeed), 32),
-                '}, {"trait_type": "TOKEN ID SEED","value": ', // solhint-disable-line
+                '"},{', // solhint-disable-line quotes
+                '"trait_type":"TOKEN ID SEED","value":"', // solhint-disable-line
                 Strings.toHexString(uint256(tokenIdSeed), 32),
-                "}]}"
-            )
+                '"}]' // solhint-disable-line
+            ),
+            "}"
         );
     }
 
@@ -163,22 +288,18 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
     function _getBirthChainSeed(uint256 tokenId)
         internal
         view
-        override
         returns (bytes32 birthChainSeed)
     {
-        if (_isOnBirthChain(tokenId)) {
-            birthChainSeed = blockhash(0);
-        } else {
-            birthChainSeed = birthChainSeeds[tokenId];
-        }
+        birthChainSeed = birthChainGenesisBlockHashes[tokenId];
     }
 
     function _getTokenIdSeed(uint256 tokenId)
         internal
         view
-        override
         returns (bytes32 tokenIdSeed)
     {
-        tokenIdSeed = tokenIdSeeds[tokenId];
+        tokenIdSeed = keccak256(
+            abi.encodePacked(mintedBlockNumbers[tokenId], tokenId)
+        );
     }
 }
