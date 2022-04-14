@@ -3,23 +3,26 @@ import { ethers } from "hardhat";
 import * as fs from "fs";
 import * as path from "path";
 import { ChainBeats } from "../typechain";
-import { NULL_ADDRESS } from "../lib/constants";
+import { NULL_ADDRESS, GAS_FOR_DESTINATION_LZ_RECEIVE } from "../lib/constants";
 
 describe("ChainBeats", function () {
   let chainBeats: ChainBeats;
   let signer: string;
 
-  const startTokenId = 10000;
-  const endTokenId = 10100;
+  const startTokenId = 1000;
+  const endTokenId = 1250;
   const mintPrice = "0";
 
   this.beforeEach(async function () {
+    const { hash } = await ethers.provider.getBlock(0);
     const ChainBeats = await ethers.getContractFactory("ChainBeats");
     chainBeats = await ChainBeats.deploy(
       NULL_ADDRESS,
       startTokenId,
       endTokenId,
-      mintPrice
+      mintPrice,
+      GAS_FOR_DESTINATION_LZ_RECEIVE,
+      hash
     );
     await chainBeats.deployed();
     [{ address: signer }] = await ethers.getSigners();
@@ -27,8 +30,7 @@ describe("ChainBeats", function () {
 
   it("Should return the proper metadata", async function () {
     await chainBeats.mint(signer, { value: mintPrice });
-    console.log(chainBeats.address);
-    const metadata = await chainBeats.getMetadata(startTokenId);
-    console.log(metadata);
+    const tokenURI = await chainBeats.tokenURI(startTokenId);
+    console.log(tokenURI);
   });
 });

@@ -52,8 +52,9 @@
     "chainId": 10001,
     "endpoint": "0x79a63d6d8BBD5c6dfc774dA79bCcD948EAcb53FA",
     "startTokenId": "1000",
-    "endTokenId": "1500",
-    "mintPrice": "0"
+    "endTokenId": "1250",
+    "mintPrice": "0",
+    "genesisBlockHash": "0x6341fd3daf94b748c72ced5a5b26028f2474f5f00d824504e4fa37a75767e177"
   },
   "BinanceSmartChain_TESTNET": {
     "chainId": 10002,
