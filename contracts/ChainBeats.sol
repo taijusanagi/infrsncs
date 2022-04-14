@@ -23,11 +23,11 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
 
     constructor(
         address layerZeroEndpoint,
+        uint256 gasForDestinationLzReceive_,
+        bytes32 birthChainGenesisBlockHash_,
         uint256 startTokenId_,
         uint256 endTokenId_,
-        uint256 mintPrice_,
-        uint256 gasForDestinationLzReceive_,
-        bytes32 birthChainGenesisBlockHash_
+        uint256 mintPrice_
     )
         ERC721("ChainBeats", "CB")
         Omnichain(

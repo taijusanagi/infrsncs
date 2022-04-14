@@ -5,15 +5,14 @@ const omnichain = require("../omnichain.json");
 
 async function main() {
   const config = omnichain[network.name];
-
   const ChainBeats = await ethers.getContractFactory("ChainBeats");
   const chainBeats = await ChainBeats.deploy(
     config.endpoint,
+    GAS_FOR_DESTINATION_LZ_RECEIVE,
+    config.genesisBlockHash,
     config.startTokenId,
     config.endTokenId,
-    config.mintPrice,
-    GAS_FOR_DESTINATION_LZ_RECEIVE,
-    config.genesisBlockHash
+    config.mintPrice
   );
   await chainBeats.deployed();
   const [signer] = await ethers.getSigners();

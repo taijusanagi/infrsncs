@@ -75,7 +75,8 @@
     "endpoint": "0xf69186dfBa60DdB133E91E9A4B5673624293d8F8",
     "startTokenId": "9000",
     "endTokenId": "9250",
-    "mintPrice": "0"
+    "mintPrice": "0",
+    "genesisBlockHash": "0x7b66506a9ebdbf30d32b43c5f15a3b1216269a1ec3a75aa3182b86176a2b1ca7"
   },
   "Arbitrum_TESTNET": {
     "chainId": 10010,

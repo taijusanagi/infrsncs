@@ -5,11 +5,11 @@ const config = omnichain[network.name];
 
 const args = [
   config.endpoint,
+  GAS_FOR_DESTINATION_LZ_RECEIVE,
+  config.genesisBlockHash,
   config.startTokenId,
   config.endTokenId,
   config.mintPrice,
-  GAS_FOR_DESTINATION_LZ_RECEIVE,
-  config.genesisBlockHash,
 ];
 
 export default args;

@@ -3,16 +3,10 @@ pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/Base64.sol";
 
 import "solidity-examples/contracts/NonBlockingReceiver.sol";
 import "solidity-examples/contracts/interfaces/ILayerZeroEndpoint.sol";
 import "solidity-examples/contracts/interfaces/ILayerZeroUserApplicationConfig.sol";
-
-import "./ByteSwapping.sol";
-import "./WAVE.sol";
-import "./SVG.sol";
 
 abstract contract Omnichain is
     ERC721,

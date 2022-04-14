@@ -18,11 +18,11 @@ describe("ChainBeats", function () {
     const ChainBeats = await ethers.getContractFactory("ChainBeats");
     chainBeats = await ChainBeats.deploy(
       NULL_ADDRESS,
+      GAS_FOR_DESTINATION_LZ_RECEIVE,
+      hash,
       startTokenId,
       endTokenId,
-      mintPrice,
-      GAS_FOR_DESTINATION_LZ_RECEIVE,
-      hash
+      mintPrice
     );
     await chainBeats.deployed();
     [{ address: signer }] = await ethers.getSigners();
