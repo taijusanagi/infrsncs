@@ -7,7 +7,7 @@ import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 
-import "./tasks/register";
+import "./tasks";
 
 import networks from "./network.json";
 
@@ -31,6 +31,14 @@ const config: HardhatUserConfig = {
       url: networks.ethereum_testnet.rpc,
       accounts,
     },
+    bsc_mainnet: {
+      url: networks.bsc_mainnet.rpc,
+      accounts,
+    },
+    bsc_testnet: {
+      url: networks.bsc_testnet.rpc,
+      accounts,
+    },
     polygon_mainnet: {
       url: networks.polygon_mainnet.rpc,
       accounts,
@@ -39,12 +47,36 @@ const config: HardhatUserConfig = {
       url: networks.polygon_testnet.rpc,
       accounts,
     },
-    bsc_mainnet: {
-      url: networks.bsc_mainnet.rpc,
+    avalanche_mainnet: {
+      url: networks.avalanche_mainnet.rpc,
       accounts,
     },
-    bsc_testnet: {
-      url: networks.bsc_testnet.rpc,
+    avalanche_testnet: {
+      url: networks.avalanche_testnet.rpc,
+      accounts,
+    },
+    arbitrum_mainnet: {
+      url: networks.arbitrum_mainnet.rpc,
+      accounts,
+    },
+    arbitrum_testnet: {
+      url: networks.arbitrum_testnet.rpc,
+      accounts,
+    },
+    optimism_mainnet: {
+      url: networks.optimism_mainnet.rpc,
+      accounts,
+    },
+    optimism_testnet: {
+      url: networks.optimism_testnet.rpc,
+      accounts,
+    },
+    fantom_mainnet: {
+      url: networks.fantom_mainnet.rpc,
+      accounts,
+    },
+    fantom_testnet: {
+      url: networks.fantom_testnet.rpc,
       accounts,
     },
   },
