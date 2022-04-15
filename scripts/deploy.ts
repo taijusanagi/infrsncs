@@ -10,7 +10,6 @@ async function main() {
   const ChainBeats = await ethers.getContractFactory("ChainBeats");
   const chainBeats = await ChainBeats.deploy(
     config.endpoint,
-    config.gasForDestinationLzReceive,
     config.genesisBlockHash,
     config.startTokenId,
     config.endTokenId,

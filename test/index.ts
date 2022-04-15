@@ -11,13 +11,11 @@ describe("ChainBeats", function () {
   const startTokenId = 1000;
   const endTokenId = 1250;
   const mintPrice = "0";
-  const gasForDestinationLzReceive = 0;
   const genesisBlockHash = NULL_BYTES32;
   this.beforeEach(async function () {
     const ChainBeats = await ethers.getContractFactory("ChainBeats");
     chainBeats = await ChainBeats.deploy(
       NULL_ADDRESS,
-      gasForDestinationLzReceive,
       genesisBlockHash,
       startTokenId,
       endTokenId,

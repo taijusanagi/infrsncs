@@ -8,10 +8,10 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 
 import "./ByteSwapping.sol";
 import "./SVG.sol";
-import "./Omnichain.sol";
+import "./Traversable.sol";
 import "./WAVE.sol";
 
-contract ChainBeats is ERC721, Ownable, Omnichain {
+contract ChainBeats is ERC721, Ownable, Traversable {
     uint256 public genesisBlockHash;
     uint256 public supplied;
     uint256 public startTokenId;
@@ -20,15 +20,11 @@ contract ChainBeats is ERC721, Ownable, Omnichain {
 
     constructor(
         address layerZeroEndpoint,
-        uint256 gasForDestinationLzReceive_,
         uint256 genesisBlockHash_,
         uint256 startTokenId_,
         uint256 endTokenId_,
         uint256 mintPrice_
-    )
-        ERC721("ChainBeats", "CB")
-        Omnichain(layerZeroEndpoint, gasForDestinationLzReceive_)
-    {
+    ) ERC721("ChainBeats", "CB") Traversable(layerZeroEndpoint) {
         genesisBlockHash = genesisBlockHash_;
         startTokenId = startTokenId_;
         endTokenId = endTokenId_;
