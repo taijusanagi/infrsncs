@@ -2,32 +2,32 @@
 import { ethers } from "hardhat";
 import * as fs from "fs";
 import * as path from "path";
-import { ChainBeats } from "../typechain";
-import { NULL_ADDRESS, NULL_BYTES32 } from "../lib/constants";
+import { INFRSNC } from "../typechain";
+import { ADDRESS_1, BYTES32_1 } from "../lib/constants";
 
-describe("ChainBeats", function () {
-  let chainBeats: ChainBeats;
+describe("INFRSNC", function () {
+  let infrsnc: INFRSNC;
   let signer: string;
   const startTokenId = 1000;
   const endTokenId = 1250;
   const mintPrice = "0";
-  const genesisBlockHash = NULL_BYTES32;
+  const genesisBlockHash = BYTES32_1;
   this.beforeEach(async function () {
-    const ChainBeats = await ethers.getContractFactory("ChainBeats");
-    chainBeats = await ChainBeats.deploy(
-      NULL_ADDRESS,
+    const INFRSNC = await ethers.getContractFactory("INFRSNC");
+    infrsnc = await INFRSNC.deploy(
+      ADDRESS_1,
       genesisBlockHash,
       startTokenId,
       endTokenId,
       mintPrice
     );
-    await chainBeats.deployed();
+    await infrsnc.deployed();
     [{ address: signer }] = await ethers.getSigners();
   });
 
   it("Should return the proper metadata", async function () {
-    await chainBeats.mint(signer, { value: mintPrice });
-    const tokenURI = await chainBeats.tokenURI(startTokenId);
-    // console.log(tokenURI);
+    await infrsnc.mint(signer, { value: mintPrice });
+    const tokenURI = await infrsnc.tokenURI(startTokenId);
+    console.log(tokenURI);
   });
 });

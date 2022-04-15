@@ -7,11 +7,9 @@ task("register", "Register trusted source")
     if (!omnichain[network.name] || !omnichain[trusted]) {
       throw new Error("network invalid");
     }
-    const ChainBeats = await ethers.getContractFactory("ChainBeats");
-    const chainBeats = await ChainBeats.attach(
-      omnichain[network.name].deployed
-    );
-    const tx = await chainBeats.setTrustedSource(
+    const INFRSNC = await ethers.getContractFactory("INFRSNC");
+    const infrsnc = await INFRSNC.attach(omnichain[network.name].deployed);
+    const tx = await infrsnc.setTrustedSource(
       omnichain[trusted].chainId,
       omnichain[trusted].deployed
     );

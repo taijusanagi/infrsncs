@@ -7,23 +7,23 @@ const omnichain = require("../omnichain.json");
 
 async function main() {
   const config = omnichain[network.name];
-  const ChainBeats = await ethers.getContractFactory("ChainBeats");
-  const chainBeats = await ChainBeats.deploy(
+  const INFRSNC = await ethers.getContractFactory("INFRSNC");
+  const infrsnc = await INFRSNC.deploy(
     config.endpoint,
     config.genesisBlockHash,
     config.startTokenId,
     config.endTokenId,
     config.mintPrice
   );
-  await chainBeats.deployed();
+  await infrsnc.deployed();
   const [signer] = await ethers.getSigners();
-  const mintPrice = await chainBeats.mintPrice();
-  await chainBeats.mint(signer.address, { value: mintPrice });
-  await chainBeats.mint(signer.address, { value: mintPrice });
-  await chainBeats.mint(signer.address, { value: mintPrice });
-  omnichain[network.name].deployed = chainBeats.address;
+  const mintPrice = await infrsnc.mintPrice();
+  await infrsnc.mint(signer.address, { value: mintPrice });
+  await infrsnc.mint(signer.address, { value: mintPrice });
+  await infrsnc.mint(signer.address, { value: mintPrice });
+  omnichain[network.name].deployed = infrsnc.address;
   fs.writeFileSync(path.join(__dirname, filePath), JSON.stringify(omnichain));
-  console.log("deployed:", chainBeats.address);
+  console.log("deployed:", infrsnc.address);
 }
 
 main().catch((error) => {

@@ -11,7 +11,7 @@ import "./SVG.sol";
 import "./Traversable.sol";
 import "./WAVE.sol";
 
-contract ChainBeats is ERC721, Ownable, Traversable {
+contract INFRSNC is ERC721, Ownable, Traversable {
     uint256 public genesisBlockHash;
     uint256 public supplied;
     uint256 public startTokenId;
@@ -24,7 +24,7 @@ contract ChainBeats is ERC721, Ownable, Traversable {
         uint256 startTokenId_,
         uint256 endTokenId_,
         uint256 mintPrice_
-    ) ERC721("ChainBeats", "CB") Traversable(layerZeroEndpoint) {
+    ) ERC721("INFRSNC", "INFRSNC") Traversable(layerZeroEndpoint) {
         genesisBlockHash = genesisBlockHash_;
         startTokenId = startTokenId_;
         endTokenId = endTokenId_;
@@ -42,9 +42,9 @@ contract ChainBeats is ERC721, Ownable, Traversable {
     }
 
     function mint(address to) public payable virtual {
-        require(msg.value >= mintPrice, "ChainBeats: msg value invalid");
+        require(msg.value >= mintPrice, "INFRSNC: msg value invalid");
         uint256 tokenId = startTokenId + supplied;
-        require(tokenId <= endTokenId, "ChainBeats: mint finished");
+        require(tokenId <= endTokenId, "INFRSNC: mint finished");
         _safeMint(to, tokenId);
         _registerTraversableSeeds(
             tokenId,
@@ -65,18 +65,20 @@ contract ChainBeats is ERC721, Ownable, Traversable {
         override
         returns (string memory tokenURI)
     {
-        require(_exists(tokenId), "ChainBeats: nonexistent token");
+        require(_exists(tokenId), "INFRSNC: nonexistent token");
         (uint256 birthChainSeed, uint256 tokenIdSeed) = _getTraversableSeeds(
             tokenId
         );
+
         uint256 sampleRate = WAVE.calculateSampleRate(genesisBlockHash);
         uint256 dutyCycle = WAVE.calculateDutyCycle(birthChainSeed);
-        uint256 waveWidth = WAVE.calculateWaveWidth(sampleRate, tokenIdSeed);
-        bytes memory wave = WAVE.generate(sampleRate, waveWidth, dutyCycle);
+        uint256 hertz = WAVE.calculateHertz(tokenIdSeed);
+
+        bytes memory wave = WAVE.generate(sampleRate, hertz, dutyCycle);
         bytes memory metadata = abi.encodePacked(
-            '{"name":"ChainBeats #',
+            '{"name":"INFRSNC #',
             Strings.toString(tokenId),
-            '","description": "A unique beat represented entirely on-chain.","image_data":"',
+            '","description": "A unique generative traversable infrasonic represented entirely on-chain.","image_data":"',
             SVG.generate(wave),
             '","animation_url":"',
             wave,
@@ -86,10 +88,10 @@ contract ChainBeats is ERC721, Ownable, Traversable {
                 Strings.toString(sampleRate),
                 '"},{"trait_type":"DUTY CYCLE","value":"',
                 Strings.toString(dutyCycle),
-                '"},{"trait_type":"WAVE WIDTH","value":"',
-                Strings.toString(waveWidth),
-                '"},{"trait_type":"APPROXIMATE HERTZ","value":"',
-                Strings.toString(sampleRate / waveWidth),
+                '"},{"trait_type":"HERTZ","value":"',
+                Strings.toString(hertz / 10),
+                ".",
+                Strings.toString(hertz % 10),
                 '"},{"trait_type":"BIRTH CHAIN SEED","value":"',
                 Strings.toHexString(birthChainSeed, 32),
                 '"},{"trait_type":"TOKEN ID SEED","value":"',

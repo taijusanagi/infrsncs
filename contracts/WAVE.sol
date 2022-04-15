@@ -20,8 +20,9 @@ library WAVE {
     uint256 private constant _MAX_SAMPLE_RATE = 8000;
     uint256 private constant _MIN_SAMPLE_RATE = 3000;
 
-    uint256 private constant _MAX_HERTZ = 16;
-    uint256 private constant _MIN_HERTZ = 1;
+    uint256 private constant _MAX_HERTZ = 160;
+    uint256 private constant _MIN_HERTZ = 10;
+    uint256 private constant _HERTZ_BASE = 10;
 
     uint256 private constant _MAX_DUTY_CYCLE = 99;
     uint256 private constant _MIN_DUTY_CYCLE = 1;
@@ -35,20 +36,18 @@ library WAVE {
         return _ramdom(seed, _MAX_DUTY_CYCLE, _MIN_DUTY_CYCLE);
     }
 
-    function calculateWaveWidth(uint256 sampleRate, uint256 seed)
-        internal
-        pure
-        returns (uint256)
-    {
-        return _ramdom(seed, sampleRate / _MIN_HERTZ, sampleRate / _MAX_HERTZ);
+    function calculateHertz(uint256 seed) internal pure returns (uint256) {
+        return _ramdom(seed, _MAX_HERTZ, _MIN_HERTZ);
     }
 
     function generate(
         uint256 sampleRate,
-        uint256 waveWidth,
+        uint256 hertz,
         uint256 dutyCycle
     ) internal pure returns (bytes memory) {
         bytes memory wave;
+
+        uint256 waveWidth = (sampleRate / hertz) * 10;
 
         uint256 amplitudesLength = 1;
         while (waveWidth >= 2**amplitudesLength) {
