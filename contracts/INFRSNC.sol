@@ -7,11 +7,12 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 import "./ByteSwapping.sol";
+import "./Royalty.sol";
 import "./SVG.sol";
 import "./Traversable.sol";
 import "./WAVE.sol";
 
-contract INFRSNC is ERC721, Ownable, Traversable {
+contract INFRSNC is ERC721, Ownable, Traversable, Royalty {
     uint256 public chainSeed;
     uint256 public supplied;
     uint256 public startTokenId;
@@ -67,7 +68,7 @@ contract INFRSNC is ERC721, Ownable, Traversable {
         uint256 sampleRate = WAVE.calculateSampleRate(chainSeed);
         uint256 dutyCycle = WAVE.calculateDutyCycle(birthChainSeed);
         uint256 hertz = WAVE.calculateHertz(tokenIdSeed);
-        bytes memory wave = WAVE.generate(sampleRate, hertz, dutyCycle);
+        bytes memory wave = WAVE.generate(7627, 10, 1);
         bytes memory metadata = abi.encodePacked(
             '{"name":"INFRSNC #',
             Strings.toString(tokenId),
@@ -94,5 +95,17 @@ contract INFRSNC is ERC721, Ownable, Traversable {
                     Base64.encode(metadata)
                 )
             );
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override
+        returns (bool)
+    {
+        return
+            interfaceId == type(IERC2981).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 }

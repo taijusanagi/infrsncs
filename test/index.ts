@@ -1,4 +1,5 @@
 // import { expect } from "chai";
+import { expect } from "chai";
 import { ethers } from "hardhat";
 import { INFRSNC } from "../typechain";
 
@@ -28,5 +29,12 @@ describe("INFRSNC", function () {
     await infrsnc.mint(signer, { value: config.mintPrice });
     const tokenURI = await infrsnc.tokenURI(config.startTokenId);
     console.log(tokenURI);
+  });
+
+  it("check royalty", async function () {
+    await infrsnc.mint(signer, { value: config.mintPrice });
+    console.log(await infrsnc.royaltyInfo(config.startTokenId, 10000));
+    await infrsnc.setRoyalty(signer, 100);
+    console.log(await infrsnc.royaltyInfo(config.startTokenId, 30000));
   });
 });
