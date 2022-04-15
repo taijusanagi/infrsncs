@@ -1,33 +1,32 @@
 // import { expect } from "chai";
 import { ethers } from "hardhat";
-import * as fs from "fs";
-import * as path from "path";
 import { INFRSNC } from "../typechain";
-import { ADDRESS_1, BYTES32_1 } from "../lib/constants";
+
+const omnichain = require("../omnichain.json");
 
 describe("INFRSNC", function () {
   let infrsnc: INFRSNC;
   let signer: string;
-  const startTokenId = 1000;
-  const endTokenId = 1250;
-  const mintPrice = "0";
-  const genesisBlockHash = BYTES32_1;
+
+  const network = "ethereum_mainnet";
+  const config = omnichain[network];
+
   this.beforeEach(async function () {
     const INFRSNC = await ethers.getContractFactory("INFRSNC");
     infrsnc = await INFRSNC.deploy(
-      ADDRESS_1,
-      genesisBlockHash,
-      startTokenId,
-      endTokenId,
-      mintPrice
+      config.endpoint,
+      config.chainSeed,
+      config.startTokenId,
+      config.endTokenId,
+      config.mintPrice
     );
     await infrsnc.deployed();
     [{ address: signer }] = await ethers.getSigners();
   });
 
   it("Should return the proper metadata", async function () {
-    await infrsnc.mint(signer, { value: mintPrice });
-    const tokenURI = await infrsnc.tokenURI(startTokenId);
+    await infrsnc.mint(signer, { value: config.mintPrice });
+    const tokenURI = await infrsnc.tokenURI(config.startTokenId);
     console.log(tokenURI);
   });
 });

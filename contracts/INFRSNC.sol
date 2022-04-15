@@ -12,7 +12,7 @@ import "./Traversable.sol";
 import "./WAVE.sol";
 
 contract INFRSNC is ERC721, Ownable, Traversable {
-    uint256 public genesisBlockSeed;
+    uint256 public currentChainSeed;
     uint256 public supplied;
     uint256 public startTokenId;
     uint256 public endTokenId;
@@ -20,12 +20,12 @@ contract INFRSNC is ERC721, Ownable, Traversable {
 
     constructor(
         address layerZeroEndpoint,
-        uint256 genesisBlockSeed_,
+        uint256 currentChainSeed_,
         uint256 startTokenId_,
         uint256 endTokenId_,
         uint256 mintPrice_
     ) ERC721("INFRSNC", "INFRSNC") Traversable(layerZeroEndpoint) {
-        genesisBlockSeed = genesisBlockSeed_;
+        currentChainSeed = currentChainSeed_;
         startTokenId = startTokenId_;
         endTokenId = endTokenId_;
         mintPrice = mintPrice_;
@@ -48,7 +48,7 @@ contract INFRSNC is ERC721, Ownable, Traversable {
         _safeMint(to, tokenId);
         _registerTraversableSeeds(
             tokenId,
-            genesisBlockSeed,
+            currentChainSeed,
             uint256(
                 keccak256(
                     abi.encodePacked(blockhash(block.number - 1), tokenId)
@@ -69,17 +69,15 @@ contract INFRSNC is ERC721, Ownable, Traversable {
         (uint256 birthChainSeed, uint256 tokenIdSeed) = _getTraversableSeeds(
             tokenId
         );
-
-        uint256 sampleRate = WAVE.calculateSampleRate(genesisBlockSeed);
+        uint256 sampleRate = WAVE.calculateSampleRate(currentChainSeed);
         uint256 dutyCycle = WAVE.calculateDutyCycle(birthChainSeed);
         uint256 hertz = WAVE.calculateHertz(tokenIdSeed);
 
         bytes memory wave = WAVE.generate(sampleRate, hertz, dutyCycle);
-
         bytes memory metadata = abi.encodePacked(
             '{"name":"INFRSNC #',
             Strings.toString(tokenId),
-            '","description": "A unique generative traversable infrasonic represented entirely on-chain.","image_data":"',
+            '","description": "A generative infrasonic represented entirely on-chain.","image_data":"',
             SVG.generate(wave),
             '","animation_url":"',
             wave,
@@ -91,14 +89,11 @@ contract INFRSNC is ERC721, Ownable, Traversable {
                 Strings.toString(dutyCycle),
                 '"},{"trait_type":"HERTZ","value":"',
                 WAVE.addDecimalPointToHertz(hertz),
-                '"},{"trait_type":"BIRTH CHAIN SEED","value":"',
-                Strings.toHexString(birthChainSeed, 32),
-                '"},{"trait_type":"TOKEN ID SEED","value":"',
-                Strings.toHexString(tokenIdSeed, 32),
                 '"}]'
             ),
             "}"
         );
+
         return
             string(
                 abi.encodePacked(

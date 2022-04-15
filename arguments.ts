@@ -4,8 +4,7 @@ const config = omnichain[network.name];
 
 const args = [
   config.endpoint,
-  config.gasForDestinationLzReceive,
-  config.genesisBlockHash,
+  config.chainSeed,
   config.startTokenId,
   config.endTokenId,
   config.mintPrice,

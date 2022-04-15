@@ -10,17 +10,16 @@ async function main() {
   const INFRSNC = await ethers.getContractFactory("INFRSNC");
   const infrsnc = await INFRSNC.deploy(
     config.endpoint,
-    config.genesisBlockHash,
+    config.chainSeed,
     config.startTokenId,
     config.endTokenId,
     config.mintPrice
   );
   await infrsnc.deployed();
   const [signer] = await ethers.getSigners();
-  const mintPrice = await infrsnc.mintPrice();
-  await infrsnc.mint(signer.address, { value: mintPrice });
-  await infrsnc.mint(signer.address, { value: mintPrice });
-  await infrsnc.mint(signer.address, { value: mintPrice });
+  await infrsnc.mint(signer.address, { value: config.mintPrice });
+  await infrsnc.mint(signer.address, { value: config.mintPrice });
+  await infrsnc.mint(signer.address, { value: config.mintPrice });
   omnichain[network.name].deployed = infrsnc.address;
   fs.writeFileSync(path.join(__dirname, filePath), JSON.stringify(omnichain));
   console.log("deployed:", infrsnc.address);
