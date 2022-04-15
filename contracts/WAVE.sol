@@ -2,6 +2,7 @@
 pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/utils/Base64.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "./ByteSwapping.sol";
 
 library WAVE {
@@ -40,6 +41,19 @@ library WAVE {
         return _ramdom(seed, _MAX_HERTZ, _MIN_HERTZ);
     }
 
+    function addDecimalPointToHertz(uint256 hertz)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return
+            abi.encodePacked(
+                Strings.toString(hertz / _HERTZ_BASE),
+                ".",
+                Strings.toString(hertz % _HERTZ_BASE)
+            );
+    }
+
     function generate(
         uint256 sampleRate,
         uint256 hertz,
@@ -47,7 +61,7 @@ library WAVE {
     ) internal pure returns (bytes memory) {
         bytes memory wave;
 
-        uint256 waveWidth = (sampleRate / hertz) * 10;
+        uint256 waveWidth = (sampleRate / hertz) * _HERTZ_BASE;
 
         uint256 amplitudesLength = 1;
         while (waveWidth >= 2**amplitudesLength) {
