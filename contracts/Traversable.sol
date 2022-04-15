@@ -13,7 +13,7 @@ abstract contract Traversable is ERC721, Ownable, NonblockingLzApp, IONFT {
 
     constructor(address layerZeroEndpoint)
         NonblockingLzApp(layerZeroEndpoint)
-    {}
+    {} // solhint-disable-line no-empty-blocks
 
     function sendFrom(
         address from,
@@ -54,6 +54,14 @@ abstract contract Traversable is ERC721, Ownable, NonblockingLzApp, IONFT {
         );
     }
 
+    function getTraversableSeeds(uint256 tokenId)
+        public
+        view
+        returns (uint256 birthChainSeed, uint256 tokenIdSeed)
+    {
+        return (_birthChainSeeds[tokenId], _tokenIdSeeds[tokenId]);
+    }
+
     function _send(
         address from,
         uint16 dstChainId,
@@ -67,8 +75,7 @@ abstract contract Traversable is ERC721, Ownable, NonblockingLzApp, IONFT {
             _isApprovedOrOwner(_msgSender(), tokenId),
             "Traversable: transfer caller is not owner nor approved"
         );
-
-        (uint256 birthChainSeed, uint256 tokenIdSeed) = _getTraversableSeeds(
+        (uint256 birthChainSeed, uint256 tokenIdSeed) = getTraversableSeeds(
             tokenId
         );
 
@@ -132,13 +139,5 @@ abstract contract Traversable is ERC721, Ownable, NonblockingLzApp, IONFT {
         _registerTraversableSeeds(tokenId, birthChainSeed, tokenIdSeed);
 
         emit ReceiveFromChain(srcChainId, localToAddress, tokenId, nonce);
-    }
-
-    function _getTraversableSeeds(uint256 tokenId)
-        internal
-        view
-        returns (uint256 birthChainSeed, uint256 tokenIdSeed)
-    {
-        return (_birthChainSeeds[tokenId], _tokenIdSeeds[tokenId]);
     }
 }

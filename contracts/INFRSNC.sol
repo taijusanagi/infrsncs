@@ -12,7 +12,7 @@ import "./Traversable.sol";
 import "./WAVE.sol";
 
 contract INFRSNC is ERC721, Ownable, Traversable {
-    uint256 public currentChainSeed;
+    uint256 public chainSeed;
     uint256 public supplied;
     uint256 public startTokenId;
     uint256 public endTokenId;
@@ -20,20 +20,15 @@ contract INFRSNC is ERC721, Ownable, Traversable {
 
     constructor(
         address layerZeroEndpoint,
-        uint256 currentChainSeed_,
+        uint256 chainSeed_,
         uint256 startTokenId_,
         uint256 endTokenId_,
         uint256 mintPrice_
     ) ERC721("INFRSNC", "INFRSNC") Traversable(layerZeroEndpoint) {
-        currentChainSeed = currentChainSeed_;
+        chainSeed = chainSeed_;
         startTokenId = startTokenId_;
         endTokenId = endTokenId_;
         mintPrice = mintPrice_;
-    }
-
-    //solhint-disable-next-line no-empty-blocks
-    function donate() public payable {
-        // thank you
     }
 
     function withdraw() public onlyOwner {
@@ -48,7 +43,7 @@ contract INFRSNC is ERC721, Ownable, Traversable {
         _safeMint(to, tokenId);
         _registerTraversableSeeds(
             tokenId,
-            currentChainSeed,
+            chainSeed,
             uint256(
                 keccak256(
                     abi.encodePacked(blockhash(block.number - 1), tokenId)
@@ -66,18 +61,17 @@ contract INFRSNC is ERC721, Ownable, Traversable {
         returns (string memory tokenURI)
     {
         require(_exists(tokenId), "INFRSNC: nonexistent token");
-        (uint256 birthChainSeed, uint256 tokenIdSeed) = _getTraversableSeeds(
+        (uint256 birthChainSeed, uint256 tokenIdSeed) = getTraversableSeeds(
             tokenId
         );
-        uint256 sampleRate = WAVE.calculateSampleRate(currentChainSeed);
+        uint256 sampleRate = WAVE.calculateSampleRate(chainSeed);
         uint256 dutyCycle = WAVE.calculateDutyCycle(birthChainSeed);
         uint256 hertz = WAVE.calculateHertz(tokenIdSeed);
-
         bytes memory wave = WAVE.generate(sampleRate, hertz, dutyCycle);
         bytes memory metadata = abi.encodePacked(
             '{"name":"INFRSNC #',
             Strings.toString(tokenId),
-            '","description": "A generative infrasonic represented entirely on-chain.","image_data":"',
+            '","description": "A traversed generative infrasonic.","image_data":"',
             SVG.generate(wave),
             '","animation_url":"',
             wave,
@@ -93,7 +87,6 @@ contract INFRSNC is ERC721, Ownable, Traversable {
             ),
             "}"
         );
-
         return
             string(
                 abi.encodePacked(
