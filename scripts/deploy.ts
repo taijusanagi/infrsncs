@@ -7,16 +7,19 @@ const omnichain = require("../omnichain.json");
 
 async function main() {
   const config = omnichain[network.name];
-  const INFRSNC = await ethers.getContractFactory("INFRSNC");
-  const infrsnc = await INFRSNC.deploy(
+  const INFRSNCS = await ethers.getContractFactory("INFRSNCS");
+  const infrsnc = await INFRSNCS.deploy(
     config.endpoint,
     config.chainSeed,
     config.startTokenId,
     config.endTokenId,
-    config.mintPrice
+    config.mintPrice,
+    { gasPrice: 35000000000 }
   );
   await infrsnc.deployed();
   const [signer] = await ethers.getSigners();
+  await infrsnc.mint(signer.address, { value: config.mintPrice });
+  await infrsnc.mint(signer.address, { value: config.mintPrice });
   await infrsnc.mint(signer.address, { value: config.mintPrice });
   omnichain[network.name].deployed = infrsnc.address;
   fs.writeFileSync(path.join(__dirname, filePath), JSON.stringify(omnichain));

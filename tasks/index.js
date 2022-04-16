@@ -8,8 +8,8 @@ task("register", "Register trusted source")
     if (!omnichain[network.name] || !target) {
       throw new Error("network invalid");
     }
-    const INFRSNC = await ethers.getContractFactory("INFRSNC");
-    const infrsnc = await INFRSNC.attach(omnichain[network.name].deployed);
+    const INFRSNCS = await ethers.getContractFactory("INFRSNCS");
+    const infrsnc = await INFRSNCS.attach(omnichain[network.name].deployed);
     const tx = await infrsnc.setTrustedRemote(target.chainId, target.deployed);
     const { transactionHash } = await tx.wait();
     console.log(transactionHash);
@@ -22,8 +22,8 @@ task("tokenURI", "Register trusted source")
     if (!omnichain[network.name]) {
       throw new Error("network invalid");
     }
-    const INFRSNC = await ethers.getContractFactory("INFRSNC");
-    const infrsnc = await INFRSNC.attach(omnichain[network.name].deployed);
+    const INFRSNCS = await ethers.getContractFactory("INFRSNCS");
+    const infrsnc = await INFRSNCS.attach(omnichain[network.name].deployed);
     const tokenURI = await infrsnc.tokenURI(token);
     console.log(tokenURI);
   });

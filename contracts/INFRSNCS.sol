@@ -12,7 +12,7 @@ import "./SVG.sol";
 import "./Traversable.sol";
 import "./WAVE.sol";
 
-contract INFRSNC is ERC721, Ownable, Traversable, Royalty {
+contract INFRSNCS is ERC721, Ownable, Traversable, Royalty {
     uint256 public chainSeed;
     uint256 public supplied;
     uint256 public startTokenId;
@@ -25,7 +25,7 @@ contract INFRSNC is ERC721, Ownable, Traversable, Royalty {
         uint256 startTokenId_,
         uint256 endTokenId_,
         uint256 mintPrice_
-    ) ERC721("INFRSNC", "INFRSNC") Traversable(layerZeroEndpoint) {
+    ) ERC721("INFRSNCS", "INFRSNCS") Traversable(layerZeroEndpoint) {
         chainSeed = chainSeed_;
         startTokenId = startTokenId_;
         endTokenId = endTokenId_;
@@ -38,9 +38,9 @@ contract INFRSNC is ERC721, Ownable, Traversable, Royalty {
     }
 
     function mint(address to) public payable virtual {
-        require(msg.value >= mintPrice, "INFRSNC: msg value invalid");
+        require(msg.value >= mintPrice, "INFRSNCS: msg value invalid");
         uint256 tokenId = startTokenId + supplied;
-        require(tokenId <= endTokenId, "INFRSNC: mint finished");
+        require(tokenId <= endTokenId, "INFRSNCS: mint finished");
         _safeMint(to, tokenId);
         _registerTraversableSeeds(
             tokenId,
@@ -61,16 +61,16 @@ contract INFRSNC is ERC721, Ownable, Traversable, Royalty {
         override
         returns (string memory tokenURI)
     {
-        require(_exists(tokenId), "INFRSNC: nonexistent token");
+        require(_exists(tokenId), "INFRSNCS: nonexistent token");
         (uint256 birthChainSeed, uint256 tokenIdSeed) = getTraversableSeeds(
             tokenId
         );
         uint256 sampleRate = WAVE.calculateSampleRate(chainSeed);
         uint256 dutyCycle = WAVE.calculateDutyCycle(birthChainSeed);
         uint256 hertz = WAVE.calculateHertz(tokenIdSeed);
-        bytes memory wave = WAVE.generate(7627, 10, 1);
+        bytes memory wave = WAVE.generate(sampleRate, hertz, dutyCycle);
         bytes memory metadata = abi.encodePacked(
-            '{"name":"INFRSNC #',
+            '{"name":"INFRSNCS #',
             Strings.toString(tokenId),
             '","description": "A traversed generative infrasonic.","image_data":"',
             SVG.generate(wave),

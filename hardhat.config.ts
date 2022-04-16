@@ -27,6 +27,10 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
+    ethereum_mainnet: {
+      url: networks.ethereum_mainnet.rpc,
+      accounts,
+    },
     ethereum_testnet: {
       url: networks.ethereum_testnet.rpc,
       accounts,

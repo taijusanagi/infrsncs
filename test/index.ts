@@ -1,20 +1,20 @@
 // import { expect } from "chai";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { INFRSNC } from "../typechain";
+import { INFRSNCS } from "../typechain";
 
 const omnichain = require("../omnichain.json");
 
-describe("INFRSNC", function () {
-  let infrsnc: INFRSNC;
+describe("INFRSNCS", function () {
+  let infrsnc: INFRSNCS;
   let signer: string;
 
   const network = "ethereum_mainnet";
   const config = omnichain[network];
 
   this.beforeEach(async function () {
-    const INFRSNC = await ethers.getContractFactory("INFRSNC");
-    infrsnc = await INFRSNC.deploy(
+    const INFRSNCS = await ethers.getContractFactory("INFRSNCS");
+    infrsnc = await INFRSNCS.deploy(
       config.endpoint,
       config.chainSeed,
       config.startTokenId,

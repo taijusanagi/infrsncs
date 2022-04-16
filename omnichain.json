@@ -6,7 +6,7 @@
     "startTokenId": "0",
     "endTokenId": "127",
     "mintPrice": "10000000000000000",
-    "deployed": ""
+    "deployed": "0x32cd5dd1691aff816b68c0ba04ee4871b963cfd6"
   },
   "bsc_mainnet": {
     "chainId": 2,
@@ -69,7 +69,7 @@
     "startTokenId": "0",
     "endTokenId": "127",
     "mintPrice": "10000000000000000",
-    "deployed": "0x06a715Cd9474A949ac3f29a26D8b538bF7ADC774"
+    "deployed": "0x49e408A2CC971B1E767CBAfcF14465d6F8A49332"
   },
   "bsc_testnet": {
     "chainId": 10002,
