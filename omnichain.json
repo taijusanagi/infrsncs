@@ -42,7 +42,7 @@
     "startTokenId": "128",
     "endTokenId": "383",
     "mintPrice": "10000000000000000",
-    "deployed": ""
+    "deployed": "0x32cd5Dd1691AFf816B68c0Ba04Ee4871b963cfD6"
   },
   "optimism_mainnet": {
     "chainId": 11,
@@ -51,7 +51,7 @@
     "startTokenId": "384",
     "endTokenId": "639",
     "mintPrice": "10000000000000000",
-    "deployed": ""
+    "deployed": "0x32cd5Dd1691AFf816B68c0Ba04Ee4871b963cfD6"
   },
   "fantom_mainnet": {
     "chainId": 12,

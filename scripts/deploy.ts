@@ -13,8 +13,7 @@ async function main() {
     config.chainSeed,
     config.startTokenId,
     config.endTokenId,
-    config.mintPrice,
-    { gasPrice: 35000000000 }
+    config.mintPrice
   );
   await infrsnc.deployed();
   const [signer] = await ethers.getSigners();
